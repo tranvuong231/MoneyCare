@@ -76,7 +76,7 @@ cd MoneyCare_Web/MoneyCare.Web && dotnet run
 cd MoneyCare_App && flutter pub get && flutter run
 ```
 
-Tài khoản admin demo (tự tạo lần chạy đầu): `admin@moneycare.local` / `Admin@123` — **hãy đổi** khi dùng thật.
+Tài khoản admin demo (tự tạo lần chạy đầu): `admin@moneycare.local` / `Admin@123` - **hãy đổi** khi dùng thật.
 Google Sign-In, gửi email thật, AI là **tùy chọn**; bỏ trống thì hệ thống tự chạy ở chế độ demo.
 
 Hướng dẫn chi tiết: [docs/SETUP.md](docs/SETUP.md)
