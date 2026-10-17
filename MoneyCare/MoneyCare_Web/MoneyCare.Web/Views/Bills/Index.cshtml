@@ -1,0 +1,144 @@
+@model List<Bill>
+@{
+    ViewData["Title"] = "Hóa đơn";
+    var trangThaiDaChon = ViewBag.TrangThai as string ?? "";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-receipt"></i> Hóa đơn & Nhắc nhở</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm hóa đơn</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small">Tìm kiếm</label>
+                <input type="text" name="timKiem" class="form-control form-control-sm" placeholder="VD: Internet, Tiền nước..." value="@ViewBag.TimKiem" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Trạng thái</label>
+                <select name="trangThai" class="form-select form-select-sm">
+                    <option value="" selected="@(string.IsNullOrEmpty(trangThaiDaChon))">Tất cả</option>
+                    <option value="ChoThanhToan" selected="@(trangThaiDaChon == "ChoThanhToan")">Chờ thanh toán</option>
+                    <option value="DaThanhToan" selected="@(trangThaiDaChon == "DaThanhToan")">Đã thanh toán</option>
+                    <option value="QuaHan" selected="@(trangThaiDaChon == "QuaHan")">Quá hạn</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Từ ngày</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="tuNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                    <span class="input-group-text" id="btnMoLichTuNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                </div>
+                <input type="date" name="tuNgay" id="inpTuNgay" value="@ViewBag.TuNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Đến ngày</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="denNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                    <span class="input-group-text" id="btnMoLichDenNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                </div>
+                <input type="date" name="denNgay" id="inpDenNgay" value="@ViewBag.DenNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-funnel"></i> Lọc</button>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            function ganLichChon(idHienThi, idGoc, idNut) {
+                var hienThi = document.getElementById(idHienThi);
+                var goc = document.getElementById(idGoc);
+                var nut = document.getElementById(idNut);
+                if (!hienThi || !goc) return;
+
+                function moLich() {
+                    if (goc.showPicker) { try { goc.showPicker(); return; } catch (e) { } }
+                    goc.focus();
+                }
+                hienThi.addEventListener('click', moLich);
+                if (nut) nut.addEventListener('click', moLich);
+
+                function capNhat() {
+                    var phan = (goc.value || '').split('-');
+                    hienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+                }
+                goc.addEventListener('change', capNhat);
+                capNhat();
+            }
+
+            ganLichChon('tuNgayHienThi', 'inpTuNgay', 'btnMoLichTuNgay');
+            ganLichChon('denNgayHienThi', 'inpDenNgay', 'btnMoLichDenNgay');
+        })();
+    </script>
+}
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:34%;">Tên hóa đơn</th>
+                    <th class="text-nowrap" style="width:16%;">Ngày đến hạn</th>
+                    <th class="text-nowrap" style="width:15%;">Số tiền</th>
+                    <th class="text-nowrap" style="width:20%;">Trạng thái</th>
+                    <th class="text-nowrap text-center" style="width:15%;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var hd in Model)
+                {
+                    <tr class="@(!hd.DaThanhToan && hd.SoNgayConLai < 0 ? "table-danger" : !hd.DaThanhToan && hd.SoNgayConLai <= 3 ? "table-warning" : "")">
+                        <td style="min-width:200px;">
+                            @hd.TenHoaDon
+                            @if (!string.IsNullOrEmpty(hd.GhiChu))
+                            {
+                                <div class="small text-muted">@hd.GhiChu</div>
+                            }
+                        </td>
+                        <td class="text-nowrap">@hd.NgayDenHan.ToString("dd/MM/yyyy")</td>
+                        <td class="text-nowrap">@hd.SoTien.ToString("N0") đ</td>
+                        <td class="text-nowrap">
+                            @if (hd.DaThanhToan)
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã thanh toán</span>
+                            }
+                            else if (hd.SoNgayConLai < 0)
+                            {
+                                <span class="badge bg-danger">Quá hạn @(-hd.SoNgayConLai) ngày</span>
+                            }
+                            else if (hd.SoNgayConLai == 0)
+                            {
+                                <span class="badge bg-warning text-dark">Đến hạn hôm nay</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Còn @hd.SoNgayConLai ngày</span>
+                            }
+                        </td>
+                        <td class="text-nowrap text-center">
+                            <form asp-action="DanhDauThanhToan" asp-route-id="@hd.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm @(hd.DaThanhToan ? "btn-outline-secondary" : "btn-outline-success")" title="Đánh dấu thanh toán">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            <a asp-action="Edit" asp-route-id="@hd.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@hd.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Không có hóa đơn nào phù hợp</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

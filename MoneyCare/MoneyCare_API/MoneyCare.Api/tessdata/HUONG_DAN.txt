@@ -1,0 +1,22 @@
+THƯ MỤC NÀY CẦN 2 FILE DỮ LIỆU NGÔN NGỮ ĐỂ TÍNH NĂNG OCR (QUÉT HÓA ĐƠN) HOẠT ĐỘNG:
+
+1. eng.traineddata   (tiếng Anh - số, ký tự thông dụng trên hóa đơn)
+2. vie.traineddata   (tiếng Việt)
+
+CÁCH TẢI NHANH: chạy download-tessdata.ps1 (Windows) hoặc download-tessdata.sh (macOS/Linux) trong thư mục này.
+(2 file này KHÔNG được commit lên Git vì nặng ~30MB.)
+
+CÁCH TẢI THỦ CÔNG (miễn phí, mã nguồn mở, 1 lần duy nhất):
+Vào kho chính thức của Tesseract tại GitHub:
+https://github.com/tesseract-ocr/tessdata
+
+Tải 2 file:
+- https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+- https://github.com/tesseract-ocr/tessdata/raw/main/vie.traineddata
+
+Sau đó đặt cả 2 file .traineddata vào ĐÚNG thư mục này (/tessdata ở gốc dự án),
+rồi build lại project (dotnet build) - file sẽ tự động được copy sang thư mục output
+nhờ cấu hình <None Include="tessdata\**"> trong file .csproj.
+
+Nếu không có 2 file này, tính năng "Quét hóa đơn" (OCR) sẽ báo lỗi khi sử dụng,
+nhưng KHÔNG ảnh hưởng đến các tính năng khác của ứng dụng.

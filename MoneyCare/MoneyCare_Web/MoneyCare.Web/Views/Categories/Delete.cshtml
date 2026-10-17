@@ -1,0 +1,24 @@
+@model Category
+@{
+    ViewData["Title"] = "Xóa danh mục";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white"><i class="bi bi-exclamation-triangle"></i> Xác nhận xóa</div>
+            <div class="card-body">
+                <p>Bạn có chắc chắn muốn xóa danh mục sau không?</p>
+                <p>
+                    <span class="badge me-2" style="background-color:@Model.MauSac">&nbsp;</span>
+                    <strong>@Model.TenDanhMuc</strong>
+                    (@(Model.Loai == LoaiGiaoDich.Thu ? "Thu" : "Chi"))
+                </p>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Xóa</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

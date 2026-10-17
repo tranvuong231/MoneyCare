@@ -1,0 +1,68 @@
+# ===== Bí mật / cấu hình cá nhân (TUYỆT ĐỐI KHÔNG commit) =====
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+secrets.json
+.env
+.env.*
+*.pfx
+*.p12
+*.jks
+*.keystore
+key.properties
+google-services.json
+GoogleService-Info.plist
+local.properties
+
+# ===== .NET / Visual Studio =====
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+TestResults/
+*.log
+launchSettings.json.bak
+
+# ===== Flutter / Dart / Android / iOS =====
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+**/android/.gradle/
+**/android/captures/
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/ios/Pods/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/.last_build_id
+coverage/
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+
+# ===== Hệ điều hành =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Dữ liệu sinh ra khi chạy =====
+MoneyCare_API/MoneyCare.Api/wwwroot/uploads/*
+!MoneyCare_API/MoneyCare.Api/wwwroot/uploads/*/
+MoneyCare_API/MoneyCare.Api/wwwroot/uploads/*/*
+!MoneyCare_API/MoneyCare.Api/wwwroot/uploads/*/.gitkeep
+*.mdf
+*.ldf
+*.db
+*.sqlite
+
+# ===== Dữ liệu OCR (nặng ~30MB, tải bằng script) =====
+*.traineddata

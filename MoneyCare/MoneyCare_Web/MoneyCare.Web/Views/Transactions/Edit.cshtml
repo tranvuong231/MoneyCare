@@ -1,0 +1,128 @@
+@using System.Globalization
+@model Transaction
+@{
+    ViewData["Title"] = "Sửa giao dịch";
+    var soTienChuoi = Model.SoTien.ToString("0", CultureInfo.InvariantCulture);
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><i class="bi bi-pencil"></i> Sửa giao dịch</div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="Loai" class="form-label"></label>
+                        <select asp-for="Loai" class="form-select" id="selLoai" asp-items="Html.GetEnumSelectList<LoaiGiaoDich>()"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label"></label>
+                        <select asp-for="CategoryId" class="form-select" id="selDanhMuc">
+                            <option value="">-- Chọn danh mục --</option>
+                            @foreach (var dm in (IEnumerable<Category>)ViewBag.DanhMucs)
+                            {
+                                <option value="@dm.Id" data-loai="@((int)dm.Loai)" selected="@(dm.Id == Model.CategoryId)">@dm.TenDanhMuc</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SoTien" class="form-label"></label>
+                        <div class="input-group">
+                            <input type="text" id="soTienHienThi" class="form-control text-end" inputmode="numeric" autocomplete="off" value="@soTienChuoi" />
+                            <span class="input-group-text">₫</span>
+                        </div>
+                        <input type="hidden" id="SoTien" name="SoTien" value="@soTienChuoi" />
+                        <span asp-validation-for="SoTien" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="NgayGiaoDich" class="form-label"></label>
+                        <div class="input-group">
+                            <input type="text" id="ngayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                            <span class="input-group-text" id="btnMoLichNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                        </div>
+                        <input asp-for="NgayGiaoDich" id="inpNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+                        <span asp-validation-for="NgayGiaoDich" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="GhiChu" class="form-label"></label>
+                        <textarea asp-for="GhiChu" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="GhiChu" class="text-danger"></span>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input asp-for="ChiaSeGiaDinh" class="form-check-input" />
+                        <label asp-for="ChiaSeGiaDinh" class="form-check-label"></label>
+                        <span class="badge-premium ms-1" style="font-size:.6rem;"><i class="bi bi-stars"></i></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Cập nhật</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var selLoai = document.getElementById('selLoai');
+            var selDanhMuc = document.getElementById('selDanhMuc');
+
+            function locDanhMucTheoLoai() {
+                var loaiDangChon = selLoai.value;
+                var dangChonHopLe = false;
+
+                Array.from(selDanhMuc.options).forEach(function (opt) {
+                    if (opt.value === "") return;
+                    var khop = opt.getAttribute('data-loai') === loaiDangChon;
+                    opt.hidden = !khop;
+                    if (khop && opt.selected) dangChonHopLe = true;
+                });
+
+                if (!dangChonHopLe) selDanhMuc.value = "";
+            }
+
+            selLoai.addEventListener('change', locDanhMucTheoLoai);
+            // Không lọc ngay khi tải trang Sửa - vì giao dịch đã có sẵn Loại + Danh mục hợp lệ từ trước,
+            // chỉ lọc lại khi người dùng chủ động đổi Loại.
+
+            var soTienHienThi = document.getElementById('soTienHienThi');
+            var soTienHidden = document.getElementById('SoTien');
+
+            function dinhDangSoTien(chuoiSo) {
+                return chuoiSo ? Number(chuoiSo).toLocaleString('vi-VN') : '';
+            }
+
+            soTienHienThi.value = dinhDangSoTien(soTienHidden.value);
+            soTienHienThi.addEventListener('input', function () {
+                var chiSo = this.value.replace(/\D/g, '');
+                soTienHidden.value = chiSo || '0';
+                this.value = dinhDangSoTien(chiSo);
+            });
+
+            var inpNgay = document.getElementById('inpNgay');
+            var ngayHienThi = document.getElementById('ngayHienThi');
+            var btnMoLichNgay = document.getElementById('btnMoLichNgay');
+
+            function moLichNgay() {
+                if (inpNgay.showPicker) { try { inpNgay.showPicker(); return; } catch (e) { } }
+                inpNgay.focus();
+            }
+            ngayHienThi.addEventListener('click', moLichNgay);
+            btnMoLichNgay.addEventListener('click', moLichNgay);
+
+            function capNhatNgayHienThi() {
+                var phan = (inpNgay.value || '').split('-');
+                ngayHienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+            }
+
+            inpNgay.addEventListener('change', capNhatNgayHienThi);
+            capNhatNgayHienThi();
+        })();
+    </script>
+}

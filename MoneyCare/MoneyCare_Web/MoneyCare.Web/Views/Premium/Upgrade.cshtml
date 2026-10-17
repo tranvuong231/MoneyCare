@@ -1,0 +1,134 @@
+@model MoneyCare.Models.PremiumOrder
+@{
+    ViewData["Title"] = "Thanh toán Premium";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="tabThanhToan">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabBank" type="button">
+                            <i class="bi bi-bank"></i> Chuyển khoản ngân hàng
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabZaloPay" type="button" id="btnTabZaloPay">
+                            <i class="bi bi-qr-code"></i> ZaloPay (UAT)
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane fade show active card-body text-center" id="tabBank">
+                    <img src="/Payment/AnhQr?soTaiKhoan=@Uri.EscapeDataString((string)ViewBag.SoTaiKhoan ?? "")&binNganHang=@Uri.EscapeDataString((string)ViewBag.BinNganHang ?? "")&soTien=@Model.SoTien&noiDung=@Uri.EscapeDataString(Model.MaGiaoDich ?? "")"
+                         alt="Mã QR thanh toán" style="width:260px;height:260px;" class="mb-3" />
+
+                    <table class="table table-sm text-start">
+                        <tr><td class="text-muted">Ngân hàng</td><td class="text-end fw-bold">@ViewBag.TenNganHangHienThi</td></tr>
+                        <tr><td class="text-muted">Số tài khoản</td><td class="text-end fw-bold">@ViewBag.SoTaiKhoan</td></tr>
+                        <tr><td class="text-muted">Số tiền</td><td class="text-end fw-bold text-danger">@Model.SoTien.ToString("N0") đ</td></tr>
+                        <tr><td class="text-muted">Nội dung CK (bắt buộc)</td><td class="text-end fw-bold">@Model.MaGiaoDich</td></tr>
+                    </table>
+
+                    <div class="alert alert-warning small text-start">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Lưu ý demo:</strong> Chuyển khoản ngân hàng chưa có webhook đối soát tự động nên cần bấm nút
+                        xác nhận thủ công bên dưới. Muốn xác nhận TỰ ĐỘNG, dùng tab "ZaloPay (UAT)" bên cạnh.
+                    </div>
+
+                    <form asp-action="XacNhanThanhToan" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="donId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="bi bi-check-circle"></i> Tôi đã chuyển khoản - Kích hoạt Premium
+                        </button>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade card-body text-center" id="tabZaloPay">
+                    <p class="text-muted small">Quét mã bằng <strong>app ZaloPay (đăng nhập tài khoản UAT/sandbox)</strong> -
+                        Premium sẽ <strong>TỰ ĐỘNG kích hoạt</strong> ngay khi thanh toán thành công, không cần bấm gì thêm.</p>
+
+                    <div id="zaloPayCho">
+                        <button class="btn btn-primary w-100 py-2" id="btnTaoDonZaloPay">
+                            <i class="bi bi-qr-code"></i> Tạo mã QR ZaloPay
+                        </button>
+                    </div>
+
+                    <div id="zaloPayQr" class="d-none">
+                        <img id="imgZaloPayQr" alt="QR ZaloPay" style="width:260px;height:260px;" class="mb-3" />
+                        <div class="text-danger fw-bold mb-2">@Model.SoTien.ToString("N0") đ</div>
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="small text-muted">Đang chờ thanh toán...</span>
+                    </div>
+
+                    <div id="zaloPayThanhCong" class="d-none alert alert-success">
+                        <i class="bi bi-check-circle-fill"></i> Thanh toán thành công! Đang chuyển hướng...
+                    </div>
+                    <div id="zaloPayLoi" class="d-none alert alert-danger small"></div>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <a asp-action="Pricing" class="btn btn-link mt-2">Quay lại bảng giá</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const donId = @Model.Id;
+            const btnTao = document.getElementById('btnTaoDonZaloPay');
+            const khuVucCho = document.getElementById('zaloPayCho');
+            const khuVucQr = document.getElementById('zaloPayQr');
+            const khuVucThanhCong = document.getElementById('zaloPayThanhCong');
+            const khuVucLoi = document.getElementById('zaloPayLoi');
+            let dangPolling = null;
+
+            btnTao.addEventListener('click', async function () {
+                btnTao.disabled = true;
+                btnTao.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang tạo đơn...';
+                khuVucLoi.classList.add('d-none');
+
+                const form = new URLSearchParams();
+                form.append('donId', donId);
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                form.append('__RequestVerificationToken', token);
+
+                const res = await fetch('@Url.Action("TaoDonZaloPay")', { method: 'POST', body: form });
+                const data = await res.json();
+
+                if (!data.thanhCong) {
+                    khuVucLoi.textContent = data.loi || 'Không tạo được đơn ZaloPay.';
+                    khuVucLoi.classList.remove('d-none');
+                    btnTao.disabled = false;
+                    btnTao.innerHTML = '<i class="bi bi-qr-code"></i> Tạo mã QR ZaloPay';
+                    return;
+                }
+
+                document.getElementById('imgZaloPayQr').src = '@Url.Action("AnhQrZaloPay")?appTransId=' + data.appTransId;
+                khuVucCho.classList.add('d-none');
+                khuVucQr.classList.remove('d-none');
+
+                dangPolling = setInterval(async function () {
+                    const r = await fetch('@Url.Action("KiemTraTrangThaiZaloPay")?appTransId=' + data.appTransId);
+                    if (!r.ok) return;
+                    const tt = await r.json();
+                    if (tt.trangThai === 'ThanhCong') {
+                        clearInterval(dangPolling);
+                        khuVucQr.classList.add('d-none');
+                        khuVucThanhCong.classList.remove('d-none');
+                        setTimeout(function () { window.location.href = '@Url.Action("Index", "Home")'; }, 1500);
+                    } else if (tt.trangThai === 'ThatBai') {
+                        clearInterval(dangPolling);
+                        khuVucLoi.textContent = 'Thanh toán thất bại hoặc đơn đã hết hạn. Vui lòng thử lại.';
+                        khuVucLoi.classList.remove('d-none');
+                    }
+                }, 3000);
+            });
+        })();
+    </script>
+}

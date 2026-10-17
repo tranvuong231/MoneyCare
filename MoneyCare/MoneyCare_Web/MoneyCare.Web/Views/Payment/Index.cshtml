@@ -1,0 +1,97 @@
+@{
+    ViewData["Title"] = "Thanh toán QR";
+    var daTaoQr = ViewBag.DaTaoQr == true;
+}
+
+<h4 class="mb-1">Tạo mã QR chuyển khoản</h4>
+<p class="text-muted mb-4">
+    Sinh mã <strong>VietQR</strong> chuẩn (EMVCo/NAPAS) để chuyển khoản nhanh và quét được bằng hầu hết app ngân hàng tại Việt Nam.
+</p>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Thông tin chuyển khoản</div>
+            <div class="card-body">
+                <form asp-action="TaoQr" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Ngân hàng thụ hưởng</label>
+                        <select name="binNganHang" class="form-select">
+                            <option value="970436">Vietcombank</option>
+                            <option value="970415">VietinBank</option>
+                            <option value="970418">BIDV</option>
+                            <option value="970405">Agribank</option>
+                            <option value="970422">MB Bank</option>
+                            <option value="970407">Techcombank</option>
+                            <option value="970432">VPBank</option>
+                            <option value="970416">ACB</option>
+                            <option value="970423">TPBank</option>
+                            <option value="970441">VIB</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số tài khoản</label>
+                        <input type="text" name="soTaiKhoan" class="form-control" placeholder="VD: 0123456789" required value="@ViewBag.SoTaiKhoan" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số tiền (đ) để trống nếu muốn người chuyển tự nhập</label>
+                        <div class="input-group">
+                            <input type="text" id="soTienHienThi" class="form-control text-end" inputmode="numeric" autocomplete="off" placeholder="VD: 200.000" value="@(ViewBag.SoTien != null ? Convert.ToDecimal(ViewBag.SoTien).ToString("0", System.Globalization.CultureInfo.InvariantCulture) : "")" />
+                            <span class="input-group-text">₫</span>
+                        </div>
+                        <input type="hidden" id="soTien" name="soTien" value="@ViewBag.SoTien" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung chuyển khoản</label>
+                        <input type="text" name="noiDung" class="form-control" placeholder="VD: Chuyen tien an trua" value="@ViewBag.NoiDung" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-qr-code"></i> Tạo mã QR</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">Mã QR</div>
+            <div class="card-body d-flex align-items-center justify-content-center flex-column">
+                @if (daTaoQr)
+                {
+                    <img src="/Payment/AnhQr?soTaiKhoan=@Uri.EscapeDataString((string)ViewBag.SoTaiKhoan ?? "")&binNganHang=@Uri.EscapeDataString((string)ViewBag.BinNganHang ?? "")&soTien=@ViewBag.SoTien&noiDung=@Uri.EscapeDataString((string)ViewBag.NoiDung ?? "")"
+                         alt="Mã QR chuyển khoản" style="width:260px;height:260px;" class="mb-3" />
+                    var soTienHienThi = (decimal)(ViewBag.SoTien ?? 0m);
+                    <p class="text-center small text-muted mb-0">
+                        Chuyển khoản tới STK <strong>@ViewBag.SoTaiKhoan</strong><br />
+                        Số tiền: <strong>@(soTienHienThi > 0 ? soTienHienThi.ToString("N0") + " đ" : "Tự nhập")</strong>
+                    </p>
+                }
+                else
+                {
+                    <i class="bi bi-qr-code text-muted" style="font-size:5rem;"></i>
+                    <p class="text-muted text-center mt-2 mb-0">Điền thông tin bên trái và nhấn "Tạo mã QR"</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var soTienHienThi = document.getElementById('soTienHienThi');
+            var soTienHidden = document.getElementById('soTien');
+            if (!soTienHienThi || !soTienHidden) return;
+
+            function dinhDangSoTien(chuoiSo) {
+                return chuoiSo ? Number(chuoiSo).toLocaleString('vi-VN') : '';
+            }
+
+            soTienHienThi.value = dinhDangSoTien(soTienHidden.value);
+            soTienHienThi.addEventListener('input', function () {
+                var chiSo = this.value.replace(/\D/g, '');
+                soTienHidden.value = chiSo;
+                this.value = dinhDangSoTien(chiSo);
+            });
+        })();
+    </script>
+}

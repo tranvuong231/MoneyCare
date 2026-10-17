@@ -1,0 +1,181 @@
+@model List<Transaction>
+@{
+    ViewData["Title"] = "Giao dịch";
+    var danhMucs = ViewBag.DanhMucs as IEnumerable<Category>;
+    int? categoryIdDaChon = ViewBag.CategoryId as int?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-arrow-left-right"></i> Giao dịch thu chi</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm giao dịch</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label small">Loại</label>
+                @{
+                    LoaiGiaoDich? loaiDaChon = ViewBag.Loai as LoaiGiaoDich?;
+                }
+                <select name="loai" class="form-select form-select-sm" id="selLoaiLoc">
+                    <option value="">-- Tất cả --</option>
+                    <option value="@((int)LoaiGiaoDich.Thu)" selected="@(loaiDaChon == LoaiGiaoDich.Thu)">Thu</option>
+                    <option value="@((int)LoaiGiaoDich.Chi)" selected="@(loaiDaChon == LoaiGiaoDich.Chi)">Chi</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Danh mục</label>
+                <select name="categoryId" class="form-select form-select-sm" id="selDanhMucLoc">
+                    <option value="">-- Tất cả --</option>
+                    @if (danhMucs != null)
+                    {
+                        @foreach (var dm in danhMucs)
+                        {
+                            <option value="@dm.Id" data-loai="@((int)dm.Loai)" selected="@(dm.Id == categoryIdDaChon)">@dm.TenDanhMuc</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Từ ngày</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="tuNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                    <span class="input-group-text" id="btnMoLichTuNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                </div>
+                <input type="date" name="tuNgay" id="inpTuNgay" value="@ViewBag.TuNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Đến ngày</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="denNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                    <span class="input-group-text" id="btnMoLichDenNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                </div>
+                <input type="date" name="denNgay" id="inpDenNgay" value="@ViewBag.DenNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-funnel"></i> Lọc</button>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Lọc option Danh mục theo Loại đang chọn ngay trên trình duyệt (ẩn option không khớp) -
+            // giống hệt cách làm ở trang Thêm/Sửa giao dịch (xem selLoai/selDanhMuc bên đó).
+            var selLoaiLoc = document.getElementById('selLoaiLoc');
+            var selDanhMucLoc = document.getElementById('selDanhMucLoc');
+
+            function locDanhMucLocTheoLoai() {
+                var loaiDangChon = selLoaiLoc.value; // "" = Tất cả, "0" = Thu, "1" = Chi
+                var dangChonHopLe = false;
+
+                Array.from(selDanhMucLoc.options).forEach(function (opt) {
+                    if (opt.value === "") return; // luôn giữ dòng "-- Tất cả --"
+                    var khop = loaiDangChon === "" || opt.getAttribute('data-loai') === loaiDangChon;
+                    opt.hidden = !khop;
+                    if (khop && opt.selected) dangChonHopLe = true;
+                });
+
+                if (!dangChonHopLe) selDanhMucLoc.value = "";
+            }
+
+            selLoaiLoc.addEventListener('change', locDanhMucLocTheoLoai);
+            locDanhMucLocTheoLoai(); // Lọc ngay khi tải trang (giữ đúng lựa chọn cũ nếu còn hợp lệ)
+        })();
+    </script>
+    <script>
+        (function () {
+            // Đồng bộ icon lịch trên toàn site: ô ngày hiện readonly (dd/mm/yyyy) + icon lịch bấm mở
+            // được input[type=date] thật (ẩn) qua showPicker() - giống hệt các trang Thêm/Sửa.
+            function ganLichChon(idHienThi, idGoc, idNut) {
+                var hienThi = document.getElementById(idHienThi);
+                var goc = document.getElementById(idGoc);
+                var nut = document.getElementById(idNut);
+                if (!hienThi || !goc) return;
+
+                function moLich() {
+                    if (goc.showPicker) { try { goc.showPicker(); return; } catch (e) { } }
+                    goc.focus();
+                }
+                hienThi.addEventListener('click', moLich);
+                if (nut) nut.addEventListener('click', moLich);
+
+                function capNhat() {
+                    var phan = (goc.value || '').split('-');
+                    hienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+                }
+                goc.addEventListener('change', capNhat);
+                capNhat();
+            }
+
+            ganLichChon('tuNgayHienThi', 'inpTuNgay', 'btnMoLichTuNgay');
+            ganLichChon('denNgayHienThi', 'inpDenNgay', 'btnMoLichDenNgay');
+        })();
+    </script>
+}
+
+<div class="row g-2 mb-3">
+    <div class="col-md-6">
+        <div class="alert alert-success mb-0 text-center">Tổng thu: <strong>@(((decimal)ViewBag.TongThu).ToString("N0")) đ</strong></div>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-danger mb-0 text-center">Tổng chi: <strong>@(((decimal)ViewBag.TongChi).ToString("N0")) đ</strong></div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="text-nowrap" style="width:16%;">Thời gian</th>
+                    <th class="text-nowrap" style="width:14%;">Danh mục</th>
+                    <th class="text-nowrap" style="width:10%;">Loại</th>
+                    <th style="width:32%;">Ghi chú</th>
+                    <th class="text-nowrap text-end" style="width:14%;">Số tiền</th>
+                    <th class="text-nowrap text-center" style="width:14%;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var gd in Model)
+                {
+                    <tr>
+                        <td class="text-nowrap">
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="small text-body-secondary" title="Lưu vào hệ thống lúc: @gd.ThoiGianTao.ToString("dd/MM/yyyy HH:mm:ss")">@gd.NgayGiaoDich.ToString("dd/MM/yyyy")</span>
+                                @Html.Raw(GiaoDichIconHelper.HtmlIconNguon(gd))
+                            </div>
+                        </td>
+                        <td class="text-nowrap"><span class="badge" style="background-color:@gd.Category?.MauSac">@gd.Category?.TenDanhMuc</span></td>
+                        <td class="text-nowrap">
+                            @if (gd.Loai == LoaiGiaoDich.Thu)
+                            {
+                                <span class="badge bg-success">Thu</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Chi</span>
+                            }
+                        </td>
+                        <td style="min-width:200px;">@gd.GhiChu</td>
+                        <td class="text-nowrap text-end fw-bold @(gd.Loai == LoaiGiaoDich.Thu ? "text-success" : "text-danger")">
+                            @(gd.Loai == LoaiGiaoDich.Thu ? "+" : "-")@gd.SoTien.ToString("N0") đ
+                        </td>
+                        <td class="text-nowrap text-center">
+                            <a asp-action="Edit" asp-route-id="@gd.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@gd.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Không có giao dịch nào phù hợp</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

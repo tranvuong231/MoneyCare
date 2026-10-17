@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Nâng cấp Premium";
+    Layout = "_Layout";
+    var daDangNhap = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="auth-page" style="align-items:flex-start; padding-top:4rem;">
+    <div style="max-width: 1000px; width:100%;">
+        <div class="text-center mb-5">
+            <span class="badge-premium mb-3 d-inline-flex"><i class="bi bi-stars"></i> MoneyCare Premium</span>
+            <h2 class="text-white fw-bold">Kiểm soát tài chính thông minh hơn</h2>
+            <p class="text-white-50">Mở khóa AI phân tích, tự động hóa và các công cụ nâng cao cho việc quản lý tiền bạc.</p>
+        </div>
+
+        @if (TempData["Loi"] != null)
+        {
+            <div class="alert alert-warning text-center">@TempData["Loi"]</div>
+        }
+        @if (TempData["ThongBao"] != null)
+        {
+            <div class="alert alert-success text-center">@TempData["ThongBao"]</div>
+        }
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="pricing-card">
+                    <div class="text-muted fw-semibold mb-1">MIỄN PHÍ</div>
+                    <div class="price">0đ<span class="fs-6 text-muted">/tháng</span></div>
+                    <p class="text-muted small mt-2">Đủ dùng cho nhu cầu quản lý thu chi cơ bản hàng ngày.</p>
+                    <ul>
+                        <li><i class="bi bi-check-circle-fill"></i> Quản lý giao dịch thu/chi không giới hạn</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Danh mục tùy chỉnh</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Nhắc nhở hóa đơn</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Dashboard &amp; biểu đồ cơ bản</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Tạo mã QR chuyển khoản</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="pricing-card featured">
+                    <span class="featured-badge">PHỔ BIẾN NHẤT</span>
+                    <div class="text-muted fw-semibold mb-1">PREMIUM</div>
+                    <div class="price">29.000đ<span class="fs-6 text-muted">/tháng</span></div>
+                    <p class="text-muted small mt-2">Dành cho ai muốn tối ưu chi tiêu và tiết kiệm nhiều hơn.</p>
+                    <ul>
+                        <li><i class="bi bi-check-circle-fill"></i> Tất cả tính năng gói Miễn phí</li>
+                        <li><i class="bi bi-cpu"></i> AI phân tích thói quen chi tiêu</li>
+                        <li><i class="bi bi-piggy-bank"></i> Gợi ý tiết kiệm cá nhân hóa</li>
+                        <li><i class="bi bi-graph-up"></i> Dự đoán số dư cuối tháng</li>
+                        <li><i class="bi bi-camera"></i> Quét hóa đơn tự động (OCR)</li>
+                        <li><i class="bi bi-file-earmark-arrow-down"></i> Xuất báo cáo Excel/PDF</li>
+                        <li><i class="bi bi-people"></i> Quản lý tài chính gia đình</li>
+                        <li><i class="bi bi-bank"></i> Kết nối ngân hàng/ví điện tử</li>
+                    </ul>
+                    @if (daDangNhap)
+                    {
+                        <a asp-action="Upgrade" asp-route-soThang="1" class="btn btn-primary w-100 py-2">Nâng cấp ngay</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary w-100 py-2">Đăng ký để nâng cấp</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-white-50 small mt-4">
+            Thanh toán qua chuyển khoản ZaloPay (UAT) và xác nhận thủ công trong bản demo này.
+        </p>
+    </div>
+</div>

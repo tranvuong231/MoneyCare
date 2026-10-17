@@ -1,0 +1,95 @@
+@model List<FinancialLink>
+@{
+    ViewData["Title"] = "Kết nối";
+}
+
+<div class="d-flex align-items-center gap-2 mb-1">
+    <h4 class="mb-0">Kết nối ngân hàng &amp; ví điện tử</h4>
+    <span class="badge-premium"><i class="bi bi-stars"></i> Premium</span>
+</div>
+<p class="text-muted mb-4">Liên kết tài khoản để tự động đồng bộ giao dịch.</p>
+
+<div class="alert alert-info small">
+    <i class="bi bi-info-circle"></i>
+    Ví <strong>ZaloPay</strong> đã hỗ trợ liên kết THẬT qua môi trường UAT/sandbox (quét mã QR xác thực).
+    Ngân hàng và MoMo hiện chỉ hỗ trợ nhập tay (demo) - cần hợp đồng đối tác chính thức để kết nối API thật.
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="integration-card">
+            <div class="integration-logo logo-bank"><i class="bi bi-bank"></i></div>
+            <h6>Ngân hàng</h6>
+            <p class="small text-muted">Vietcombank, MB Bank, Techcombank...</p>
+            <a asp-action="Create" asp-route-nhaCungCap="NganHang" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus-lg"></i> Kết nối
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="integration-card">
+            <div class="integration-logo logo-momo"><i class="bi bi-wallet2"></i></div>
+            <h6>Ví MoMo</h6>
+            <p class="small text-muted">Đồng bộ giao dịch từ ví MoMo của bạn</p>
+            <a asp-action="Create" asp-route-nhaCungCap="MoMo" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus-lg"></i> Kết nối
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="integration-card">
+            <div class="integration-logo logo-zalopay"><i class="bi bi-credit-card"></i></div>
+            <h6>Ví ZaloPay</h6>
+            <p class="small text-muted">Đồng bộ giao dịch từ ví ZaloPay của bạn</p>
+            <a asp-action="Create" asp-route-nhaCungCap="ZaloPay" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus-lg"></i> Kết nối
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Các liên kết đã lưu</div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Nhà cung cấp</th>
+                    <th>Tên gợi nhớ</th>
+                    <th>Số tài khoản</th>
+                    <th>Đồng bộ lần cuối</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var lk in Model)
+                {
+                    <tr>
+                        <td>@lk.NhaCungCap</td>
+                        <td>@lk.TenGoiNho</td>
+                        <td>@lk.SoTaiKhoanAn</td>
+                        <td>@(lk.DongBoLanCuoi?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa đồng bộ")</td>
+                        <td class="text-center">
+                            <form asp-action="DongBoNgay" asp-route-id="@lk.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Đồng bộ ngay">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </form>
+                            <form asp-action="HuyKetNoi" asp-route-id="@lk.Id" method="post" class="d-inline" onsubmit="return confirm('Hủy liên kết này?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Hủy kết nối">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Chưa có liên kết nào</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

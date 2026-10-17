@@ -1,0 +1,107 @@
+@model InsightsViewModel
+@{
+    ViewData["Title"] = "AI Phân tích";
+}
+
+<div class="d-flex align-items-center gap-2 mb-1">
+    <h4 class="mb-0">Trợ lý phân tích tài chính</h4>
+    <span class="badge-premium"><i class="bi bi-stars"></i> Premium</span>
+</div>
+<p class="text-muted mb-4">Phân tích dựa trên dữ liệu 6 tháng gần nhất của bạn được cập nhật theo thời gian thực.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-balance">
+            <i class="bi bi-graph-up-arrow stat-icon"></i>
+            <div class="stat-label">Số dư dự đoán cuối tháng</div>
+            <div class="stat-value">@Model.DuDoan.SoDuDuDoanCuoiThang.ToString("N0") đ</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Số dư hiện tại</div>
+                <div class="fs-4 fw-bold">@Model.DuDoan.SoDuHienTai.ToString("N0") đ</div>
+                <div class="text-muted small mt-2">Còn @Model.DuDoan.SoNgayConLaiTrongThang ngày trong tháng</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small mb-1">Xu hướng dòng tiền/ngày</div>
+                @{
+                    var (icon, mau, chuThich) = Model.DuDoan.XuHuong switch
+                    {
+                        "tang" => ("bi-arrow-up-circle-fill", "text-success", "Đang tích lũy tốt"),
+                        "giam" => ("bi-arrow-down-circle-fill", "text-danger", "Đang thâm hụt"),
+                        _ => ("bi-dash-circle-fill", "text-secondary", "Ổn định")
+                    };
+                }
+                <div class="fs-4 fw-bold @mau"><i class="bi @icon"></i> @chuThich</div>
+                <div class="text-muted small mt-2">
+                    Thu TB: @Model.DuDoan.ThuNhapTrungBinhNgay.ToString("N0") đ/ngày ·
+                    Chi TB: @Model.DuDoan.ChiTieuTrungBinhNgay.ToString("N0") đ/ngày
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Xu hướng chi tiêu 6 tháng &amp; dự báo tháng tới</div>
+            <div class="card-body">
+                <canvas id="xuHuongChart" height="90"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <h5 class="mb-3"><i class="bi bi-lightbulb"></i> Thói quen chi tiêu</h5>
+        @foreach (var item in Model.ThoiQuenChiTieu)
+        {
+            <div class="insight-card @item.MucDo">
+                <div class="insight-title"><i class="bi @item.Icon insight-icon"></i>@item.TieuDe</div>
+                <div class="insight-body">@item.NoiDung</div>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <h5 class="mb-3"><i class="bi bi-piggy-bank"></i> Gợi ý tiết kiệm</h5>
+        @foreach (var item in Model.GoiYTietKiem)
+        {
+            <div class="insight-card @item.MucDo">
+                <div class="insight-title"><i class="bi @item.Icon insight-icon"></i>@item.TieuDe</div>
+                <div class="insight-body">@item.NoiDung</div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    new Chart(document.getElementById('xuHuongChart'), {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NhanThang)),
+            datasets: [
+                {
+                    label: 'Chi tiêu thực tế',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChiTieuThucTe.Select((v, i) => i == Model.ChiTieuThucTe.Count - 1 ? (decimal?)null : v))),
+                    backgroundColor: '#14B8A6'
+                },
+                {
+                    label: 'Dự báo (hồi quy tuyến tính)',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChiTieuDuBao)),
+                    backgroundColor: '#F59E0B'
+                }
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+</script>
+}

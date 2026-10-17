@@ -1,0 +1,105 @@
+@model HouseholdViewModel
+@{
+    ViewData["Title"] = "Gia đình";
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h4 class="mb-0">@Model.HoGiaDinh!.TenHoGiaDinh</h4>
+            <span class="badge-premium"><i class="bi bi-stars"></i> Premium</span>
+        </div>
+        <p class="text-muted mb-0">
+            Mã mời: <strong class="text-dark">@Model.HoGiaDinh.MaMoi</strong>
+            <button class="btn btn-sm btn-link p-0 ms-1" onclick="navigator.clipboard.writeText('@Model.HoGiaDinh.MaMoi')" title="Sao chép">
+                <i class="bi bi-clipboard"></i>
+            </button>
+            · @Model.ThanhVienChiTieu.Count thành viên
+        </p>
+    </div>
+    @if (ViewBag.LaChuHo == true)
+    {
+        <form asp-action="XoaHoGiaDinh" method="post" onsubmit="return confirm('Xóa hộ gia đình sẽ đưa TẤT CẢ thành viên (kể cả bạn) về trạng thái không có hộ. Bạn có chắc chắn?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Xóa hộ gia đình</button>
+        </form>
+    }
+    else
+    {
+        <form asp-action="RoiHo" method="post" onsubmit="return confirm('Bạn có chắc muốn rời hộ gia đình này?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-left"></i> Rời hộ gia đình</button>
+        </form>
+    }
+</div>
+
+<div class="alert alert-info small">
+    <i class="bi bi-info-circle"></i> Chỉ những giao dịch được đánh dấu <strong>"Chia sẻ với gia đình"</strong> khi tạo mới xuất hiện ở đây.
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="stat-card stat-income">
+            <i class="bi bi-arrow-down-circle stat-icon"></i>
+            <div class="stat-label">Tổng thu cả gia đình</div>
+            <div class="stat-value">@Model.TongThuGiaDinh.ToString("N0") đ</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card stat-expense">
+            <i class="bi bi-arrow-up-circle stat-icon"></i>
+            <div class="stat-label">Tổng chi cả gia đình</div>
+            <div class="stat-value">@Model.TongChiGiaDinh.ToString("N0") đ</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">Theo thành viên</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var tv in Model.ThanhVienChiTieu)
+                {
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>@tv.TenThanhVien</strong>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span class="text-success">Thu: @tv.TongThu.ToString("N0") đ</span>
+                            <span class="text-danger">Chi: @tv.TongChi.ToString("N0") đ</span>
+                        </div>
+                    </li>
+                }
+                @if (!Model.ThanhVienChiTieu.Any())
+                {
+                    <li class="list-group-item text-muted text-center py-4">Chưa có dữ liệu chia sẻ</li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">Giao dịch chia sẻ gần đây</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var gd in Model.GiaoDichGanDay)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge" style="background-color:@gd.Category?.MauSac">@gd.Category?.TenDanhMuc</span>
+                            <span class="small text-muted ms-1">bởi @(gd.User?.HoTen ?? gd.User?.UserName)</span>
+                            <div class="small text-muted">@gd.NgayGiaoDich.ToString("dd/MM/yyyy")</div>
+                        </div>
+                        <span class="fw-bold @(gd.Loai == LoaiGiaoDich.Thu ? "text-success" : "text-danger")">
+                            @(gd.Loai == LoaiGiaoDich.Thu ? "+" : "-")@gd.SoTien.ToString("N0") đ
+                        </span>
+                    </li>
+                }
+                @if (!Model.GiaoDichGanDay.Any())
+                {
+                    <li class="list-group-item text-muted text-center py-4">Chưa có giao dịch nào được chia sẻ</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

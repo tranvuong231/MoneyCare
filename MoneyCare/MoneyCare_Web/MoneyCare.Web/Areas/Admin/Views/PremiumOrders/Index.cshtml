@@ -1,0 +1,76 @@
+@model List<PremiumOrder>
+@{
+    ViewData["Title"] = "Đơn Premium";
+    bool? chuaXacNhan = ViewBag.ChuaXacNhan;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="btn-group">
+        <a asp-action="Index" class="btn btn-sm @(chuaXacNhan == null ? "btn-primary" : "btn-outline-secondary")">Tất cả</a>
+        <a asp-action="Index" asp-route-chuaXacNhan="true" class="btn btn-sm @(chuaXacNhan == true ? "btn-primary" : "btn-outline-secondary")">Chờ xác nhận</a>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        @if (chuaXacNhan == true)
+        {
+            <input type="hidden" name="chuaXacNhan" value="true" />
+        }
+        <input type="text" name="tuKhoa" class="form-control" placeholder="Tìm theo email / mã giao dịch..." value="@ViewBag.TuKhoa" style="width:280px;" />
+        <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+    </form>
+    <span class="text-muted small">@Model.Count đơn</span>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table admin-table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Mã GD</th>
+                    <th>Người dùng</th>
+                    <th>Số tiền</th>
+                    <th>Số tháng</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var don in Model)
+                {
+                    <tr>
+                        <td><code>@don.MaGiaoDich</code></td>
+                        <td>@(don.User?.HoTen ?? don.User?.Email)</td>
+                        <td>@don.SoTien.ToString("N0") đ</td>
+                        <td>@don.SoThangDangKy</td>
+                        <td>@don.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (don.DaXacNhan)
+                            { <span class="badge badge-active">Đã xác nhận</span> }
+                            else
+                            { <span class="badge badge-locked">Chờ xác nhận</span> }
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center">
+                                @if (!don.DaXacNhan)
+                                {
+                                    <form asp-action="XacNhan" asp-route-id="@don.Id" method="post" class="d-inline" onsubmit="return confirm('Xác nhận đã nhận được thanh toán cho đơn này?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Xác nhận</button>
+                                    </form>
+                                }
+                                <form asp-action="Xoa" asp-route-id="@don.Id" method="post" class="d-inline" onsubmit="return confirm('Xóa đơn này?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Không có đơn nào</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

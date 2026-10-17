@@ -1,0 +1,154 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Chi tiết người dùng";
+    bool laAdmin = ViewBag.LaAdmin;
+    bool biKhoa = ViewBag.BiKhoa;
+}
+
+<a asp-action="Index" class="btn btn-sm btn-outline-secondary mb-3"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="user-avatar mx-auto mb-3" style="width:64px;height:64px;font-size:1.5rem;">
+                    @((Model.HoTen ?? Model.UserName ?? "U").Substring(0,1).ToUpper())
+                </div>
+                <h5 class="mb-0">@Model.HoTen</h5>
+                <p class="text-muted small">@Model.Email</p>
+
+                @if (laAdmin)
+                { <span class="badge badge-admin-role mb-2"><i class="bi bi-shield-check"></i> Quản trị viên</span> }
+                @if (biKhoa)
+                { <span class="badge badge-locked mb-2 d-block">Tài khoản đang bị khóa</span> }
+
+                <hr />
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>Ngày tạo</span><span>@Model.NgayTao.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>Số giao dịch</span><span>@ViewBag.SoGiaoDich</span>
+                </div>
+                <div class="d-flex justify-content-between small text-success">
+                    <span>Tổng thu</span><span>@(((decimal)ViewBag.TongThu).ToString("N0")) đ</span>
+                </div>
+                <div class="d-flex justify-content-between small text-danger">
+                    <span>Tổng chi</span><span>@(((decimal)ViewBag.TongChi).ToString("N0")) đ</span>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>Đơn Premium đã xác nhận</span><span>@ViewBag.SoDonPremium</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-stars"></i> Quản lý gói Premium</div>
+            <div class="card-body">
+                <p class="mb-2">
+                    Trạng thái hiện tại:
+                    @if (Model.PremiumConHieuLuc)
+                    { <strong class="text-success">Premium (đến @Model.PremiumHetHan?.ToString("dd/MM/yyyy"))</strong> }
+                    else
+                    { <strong class="text-muted">Miễn phí</strong> }
+                </p>
+                <form asp-action="CapNhatPremium" method="post" class="d-flex gap-2 align-items-end mb-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div>
+                        <label class="form-label small mb-1">Gia hạn thêm (tháng)</label>
+                        <input type="number" name="soThang" class="form-control" value="1" min="1" style="width:100px;" />
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Gia hạn Premium</button>
+                </form>
+                @if (Model.PremiumConHieuLuc)
+                {
+                    <form asp-action="HuyPremium" method="post" onsubmit="return confirm('Hủy Premium của người dùng này?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle"></i> Hủy Premium ngay</button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-shield-lock"></i> Bảo mật tài khoản</div>
+            <div class="card-body d-flex gap-2 flex-wrap">
+                @if (biKhoa)
+                {
+                    <form asp-action="MoKhoaTaiKhoan" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-success"><i class="bi bi-unlock"></i> Mở khóa tài khoản</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="KhoaTaiKhoan" method="post" onsubmit="return confirm('Khóa tài khoản này? Người dùng sẽ không thể đăng nhập.');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger"><i class="bi bi-lock"></i> Khóa tài khoản</button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-patch-check"></i> Xác minh danh tính (tích xanh)</div>
+            <div class="card-body">
+                <p class="mb-2">Trạng thái: <strong>@(Model.DaXacMinhDanhTinh ? "Đã xác minh" : "Chưa xác minh")</strong></p>
+                @if (Model.DaXacMinhDanhTinh)
+                {
+                    <form asp-action="HuyXacMinh" method="post" onsubmit="return confirm('Hủy tích xanh của người dùng này?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger"><i class="bi bi-patch-minus"></i> Hủy tích xanh</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="CapXacMinh" method="post" onsubmit="return confirm('Cấp tích xanh cho người dùng này?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-success"><i class="bi bi-patch-check"></i> Cấp tích xanh</button>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="bi bi-person-badge"></i> Phân quyền quản trị</div>
+            <div class="card-body">
+                @if (laAdmin)
+                {
+                    <form asp-action="ThuHoiQuyenAdmin" method="post" onsubmit="return confirm('Thu hồi quyền Admin của người dùng này?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-warning"><i class="bi bi-shield-minus"></i> Thu hồi quyền Admin</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="CapQuyenAdmin" method="post" onsubmit="return confirm('Cấp quyền Admin cho người dùng này? Họ sẽ có toàn quyền quản trị hệ thống.');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-shield-plus"></i> Cấp quyền Admin</button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <div class="card border-danger">
+            <div class="card-header text-danger"><i class="bi bi-exclamation-octagon"></i> Khu vực nguy hiểm</div>
+            <div class="card-body">
+                <p class="mb-2 small text-muted">Xóa vĩnh viễn tài khoản này cùng toàn bộ giao dịch, danh mục, hóa đơn, liên kết ngân hàng và đơn Premium liên quan. Hành động này không thể hoàn tác.</p>
+                <form asp-action="Xoa" method="post" onsubmit="return confirm('Xóa vĩnh viễn tài khoản \'' + '@Model.Email' + '\'? Hành động này KHÔNG THỂ khôi phục.');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Xóa tài khoản này</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

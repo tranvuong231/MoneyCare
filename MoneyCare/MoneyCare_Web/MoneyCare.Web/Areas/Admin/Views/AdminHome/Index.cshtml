@@ -1,0 +1,140 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-stat-card">
+            <div class="label"><i class="bi bi-people"></i> Tổng người dùng</div>
+            <div class="value">@Model.TongNguoiDung</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card" style="border-left-color:#F59E0B;">
+            <div class="label"><i class="bi bi-stars"></i> Người dùng Premium</div>
+            <div class="value">@Model.TongNguoiDungPremium</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card" style="border-left-color:#10B981;">
+            <div class="label"><i class="bi bi-cash-coin"></i> Tổng doanh thu</div>
+            <div class="value">@Model.TongDoanhThu.ToString("N0") đ</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card" style="border-left-color:#EF4444;">
+            <div class="label"><i class="bi bi-hourglass-split"></i> Đơn chờ xác nhận</div>
+            <div class="value">@Model.DonChoXacNhan</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="admin-stat-card" style="border-left-color:#0EA5E9;">
+            <div class="label"><i class="bi bi-arrow-left-right"></i> Tổng giao dịch hệ thống</div>
+            <div class="value">@Model.TongGiaoDich</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card" style="border-left-color:#8B5CF6;">
+            <div class="label"><i class="bi bi-house-heart"></i> Hộ gia đình</div>
+            <div class="value">@Model.TongHoGiaDinh</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card" style="border-left-color:#14B8A6;">
+            <div class="label"><i class="bi bi-person-plus"></i> Người dùng mới tháng này</div>
+            <div class="value">@Model.NguoiDungMoiThangNay</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Doanh thu Premium 6 tháng gần đây</div>
+            <div class="card-body"><canvas id="doanhThuChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Người dùng mới 6 tháng gần đây</div>
+            <div class="card-body"><canvas id="nguoiDungChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Đơn Premium gần đây</div>
+            <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                    <thead><tr><th>Người dùng</th><th>Số tiền</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        @foreach (var don in Model.DonGanDay)
+                        {
+                            <tr>
+                                <td>@(don.User?.HoTen ?? don.User?.Email)</td>
+                                <td>@don.SoTien.ToString("N0") đ</td>
+                                <td>
+                                    @if (don.DaXacNhan)
+                                    { <span class="badge badge-active">Đã xác nhận</span> }
+                                    else
+                                    { <span class="badge badge-locked">Chờ xác nhận</span> }
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.DonGanDay.Any())
+                        {
+                            <tr><td colspan="3" class="text-center text-muted py-3">Chưa có đơn nào</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Người dùng mới nhất</div>
+            <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                    <thead><tr><th>Họ tên</th><th>Email</th><th>Ngày tạo</th></tr></thead>
+                    <tbody>
+                        @foreach (var nd in Model.NguoiDungMoiNhat)
+                        {
+                            <tr>
+                                <td>@nd.HoTen</td>
+                                <td>@nd.Email</td>
+                                <td>@nd.NgayTao.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    new Chart(document.getElementById('doanhThuChart'), {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NhanThang)),
+            datasets: [{ label: 'Doanh thu (đ)', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DoanhThuTheoThang)), backgroundColor: '#F59E0B' }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+    new Chart(document.getElementById('nguoiDungChart'), {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NhanThang)),
+            datasets: [{ label: 'Người dùng mới', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NguoiDungMoiTheoThang)), borderColor: '#14B8A6', backgroundColor: 'rgba(20,184,166,.15)', fill: true, tension: .3 }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+</script>
+}

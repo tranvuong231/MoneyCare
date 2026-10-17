@@ -1,0 +1,54 @@
+@model List<Category>
+@{
+    ViewData["Title"] = "Danh mục";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-tags"></i> Danh mục thu chi</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm danh mục</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white"><i class="bi bi-arrow-down-circle"></i> Danh mục Thu</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var dm in Model.Where(c => c.Loai == LoaiGiaoDich.Thu))
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><span class="badge me-2" style="background-color:@dm.MauSac">&nbsp;</span>@dm.TenDanhMuc</span>
+                        <span>
+                            <a asp-action="Edit" asp-route-id="@dm.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@dm.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </span>
+                    </li>
+                }
+                @if (!Model.Any(c => c.Loai == LoaiGiaoDich.Thu))
+                {
+                    <li class="list-group-item text-muted text-center">Chưa có danh mục thu</li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white"><i class="bi bi-arrow-up-circle"></i> Danh mục Chi</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var dm in Model.Where(c => c.Loai == LoaiGiaoDich.Chi))
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><span class="badge me-2" style="background-color:@dm.MauSac">&nbsp;</span>@dm.TenDanhMuc</span>
+                        <span>
+                            <a asp-action="Edit" asp-route-id="@dm.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@dm.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </span>
+                    </li>
+                }
+                @if (!Model.Any(c => c.Loai == LoaiGiaoDich.Chi))
+                {
+                    <li class="list-group-item text-muted text-center">Chưa có danh mục chi</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

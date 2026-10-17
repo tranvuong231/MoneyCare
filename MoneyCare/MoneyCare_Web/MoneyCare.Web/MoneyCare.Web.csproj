@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Web không cần package Identity/EF Core nào - mọi thao tác Database/Identity đều đi qua
+       MoneyCare_API bằng HTTP (xem Services/MoneyCareApiClient.cs). Chỉ cần gói Google để hiển thị
+       nút "Đăng nhập với Google" (nhận id_token rồi chuyển cho API xác thực - xem AccountController). -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.26" />
+  </ItemGroup>
+
+</Project>

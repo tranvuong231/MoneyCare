@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Quét hóa đơn";
+}
+
+<div class="d-flex align-items-center gap-2 mb-1">
+    <h4 class="mb-0">Quét hóa đơn bằng OCR</h4>
+    <span class="badge-premium"><i class="bi bi-stars"></i> Premium</span>
+</div>
+<p class="text-muted mb-4">Tải ảnh hóa đơn lên, hệ thống sẽ tự động nhận diện số tiền và ngày tháng để tạo giao dịch chi tiêu.</p>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form asp-action="Quet" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3 text-center">
+                        <label class="form-label d-block">
+                            <div class="border rounded-3 p-5" style="border-style:dashed !important; cursor:pointer;" onclick="document.getElementById('fileInput').click();">
+                                <i class="bi bi-camera fs-1 text-muted"></i>
+                                <p class="text-muted mb-0 mt-2">Nhấn để chọn ảnh hóa đơn (JPG, PNG)</p>
+                            </div>
+                        </label>
+                        <input type="file" id="fileInput" name="anhHoaDon" accept="image/*" class="d-none" required
+                               onchange="document.getElementById('previewText').innerText = this.files[0]?.name || ''" />
+                        <div id="previewText" class="small text-primary mt-1"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-cpu"></i> Quét hóa đơn</button>
+                </form>
+            </div>
+        </div>
+
+        @*<div class="alert alert-info small mt-3">
+            <i class="bi bi-info-circle"></i> OCR chạy offline bằng Tesseract — cần đặt file dữ liệu ngôn ngữ vào thư mục
+            <code>/tessdata</code> trước khi dùng lần đầu (xem hướng dẫn trong README.md).
+        </div>
+    </div>
+</div>*@

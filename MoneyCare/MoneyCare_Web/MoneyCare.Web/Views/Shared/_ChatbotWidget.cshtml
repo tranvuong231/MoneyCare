@@ -1,0 +1,118 @@
+@using MoneyCare.Web.Dtos
+@using MoneyCare.Web.Services
+@inject MoneyCareApiClient Api
+@{
+    List<CauHoiMauDto> cauHoiGoiY;
+    try { cauHoiGoiY = await Api.GetAsync<List<CauHoiMauDto>>("/api/chatbot/goi-y") ?? new(); }
+    catch (ApiException) { cauHoiGoiY = new(); }
+}
+
+<div id="chatbotWidget">
+    <button id="chatbotToggleBtn" type="button" title="Trợ lý MoneyCare">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <div id="chatbotPanel" class="d-none">
+        <div class="chatbot-header">
+            <div class="chatbot-header-avatar"><i class="bi bi-robot"></i></div>
+            <div class="flex-grow-1">
+                <div class="chatbot-header-title">Trợ lý MoneyCare</div>
+                <div class="chatbot-header-sub"><span class="chatbot-dot"></span> Đang hoạt động</div>
+            </div>
+            <button type="button" id="chatbotCloseBtn"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chatbot-msg bot">
+                Xin chào! 👋 Mình là trợ lý ảo của MoneyCare. Bạn có thể hỏi mình về cách sử dụng ứng dụng,
+                hoặc chọn nhanh một câu hỏi bên dưới nhé.
+            </div>
+            <div class="chatbot-suggestions" id="chatbotSuggestions">
+                @foreach (var ch in cauHoiGoiY.Take(6))
+                {
+                    <button type="button" class="chatbot-chip" data-cauhoi="@ch.CauHoi">@ch.CauHoi</button>
+                }
+            </div>
+        </div>
+
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbotInput" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" />
+            <button type="button" id="chatbotSendBtn"><i class="bi bi-send-fill"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const toggleBtn = document.getElementById('chatbotToggleBtn');
+    const closeBtn = document.getElementById('chatbotCloseBtn');
+    const panel = document.getElementById('chatbotPanel');
+    const body = document.getElementById('chatbotBody');
+    const input = document.getElementById('chatbotInput');
+    const sendBtn = document.getElementById('chatbotSendBtn');
+
+    toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('d-none');
+        if (!panel.classList.contains('d-none')) input.focus();
+    });
+    closeBtn.addEventListener('click', () => panel.classList.add('d-none'));
+
+    function themTinNhan(noiDung, laBot) {
+        const div = document.createElement('div');
+        div.className = 'chatbot-msg ' + (laBot ? 'bot' : 'user');
+        div.innerHTML = noiDung;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function themDangGo() {
+        const div = document.createElement('div');
+        div.className = 'chatbot-msg bot chatbot-typing';
+        div.id = 'chatbotTyping';
+        div.innerHTML = '<span></span><span></span><span></span>';
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function xoaDangGo() {
+        const el = document.getElementById('chatbotTyping');
+        if (el) el.remove();
+    }
+
+    async function guiCauHoi(cauHoi) {
+        if (!cauHoi.trim()) return;
+        themTinNhan(escapeHtml(cauHoi), false);
+        input.value = '';
+        const suggestions = document.getElementById('chatbotSuggestions');
+        if (suggestions) suggestions.remove();
+
+        themDangGo();
+        try {
+            const res = await fetch('/Chatbot/Hoi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cauHoi: cauHoi })
+            });
+            const data = await res.json();
+            xoaDangGo();
+            themTinNhan(data.traLoi, true);
+        } catch (err) {
+            xoaDangGo();
+            themTinNhan('Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.', true);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    sendBtn.addEventListener('click', () => guiCauHoi(input.value));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') guiCauHoi(input.value); });
+
+    document.querySelectorAll('.chatbot-chip').forEach(chip => {
+        chip.addEventListener('click', () => guiCauHoi(chip.dataset.cauhoi));
+    });
+})();
+</script>

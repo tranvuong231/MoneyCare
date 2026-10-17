@@ -1,0 +1,49 @@
+name: moneycare_app
+description: "MoneyCare - Ứng dụng quản lý tài chính cá nhân (Flutter)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Gọi API backend (ASP.NET Core)
+  http: ^1.2.1
+
+  # Lưu JWT token an toàn trên máy (không dùng SharedPreferences vì token nhạy cảm)
+  flutter_secure_storage: ^9.2.2
+
+  # Quản lý trạng thái (state management) đơn giản, dễ học
+  provider: ^6.1.2
+
+  # Định dạng tiền tệ VNĐ, ngày tháng theo chuẩn Việt Nam
+  intl: ^0.19.0
+
+  # Vẽ biểu đồ tròn / cột cho Báo cáo & Insights
+  fl_chart: ^0.68.0
+
+  # Chọn ảnh từ camera/thư viện (OCR hóa đơn, ảnh đại diện, ảnh nền)
+  image_picker: ^1.1.2
+
+  # Thông báo cục bộ nhắc thanh toán hóa đơn (không cần server đẩy - đủ dùng cho đồ án)
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+
+  # Xuất & chia sẻ file báo cáo Excel/PDF tải về từ server
+  path_provider: ^2.1.4
+  share_plus: ^10.0.2
+
+  # Đăng nhập bằng Google
+  google_sign_in: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "MoneyCare - Quản lý tài chính cá nhân thông minh";
+    Layout = "_Layout";
+}
+
+<div class="landing-page">
+    <nav class="landing-nav">
+        <div class="landing-nav-inner">
+            <a class="landing-brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark"><i class="bi bi-wallet2"></i></span>
+                <span>MoneyCare</span>
+            </a>
+            <div class="landing-nav-actions">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-sm">Đăng nhập</a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-landing-cta btn-sm">Đăng ký</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="landing-hero">
+        <span class="landing-badge"><i class="bi bi-stars"></i> Miễn phí để bắt đầu</span>
+        <h1>Quản lý tài chính cá nhân<br /><span class="text-gradient">thông minh &amp; nhẹ nhàng</span></h1>
+        <p class="landing-hero-sub">
+            MoneyCare giúp bạn theo dõi thu chi, kiểm soát ngân sách và đạt được mục tiêu tiết kiệm -
+            với AI phân tích thói quen chi tiêu, báo cáo trực quan và bảo mật hàng đầu.
+        </p>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-landing-cta btn-lg landing-cta">
+            Bắt đầu ngay <i class="bi bi-arrow-right"></i>
+        </a>
+        <p class="landing-hero-note">Không cần thẻ tín dụng · Thiết lập trong 1 phút</p>
+    </section>
+
+    <section class="landing-features">
+        <h2 class="landing-section-title">Mọi thứ bạn cần để làm chủ tài chính</h2>
+        <div class="landing-feature-grid">
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon" style="background:linear-gradient(135deg,#14B8A6,#0EA5E9);"><i class="bi bi-bar-chart-fill"></i></div>
+                <h5>Báo cáo chi tiết</h5>
+                <p>Biểu đồ trực quan theo danh mục, theo tháng, xuất báo cáo Excel/PDF chỉ trong vài giây.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon" style="background:linear-gradient(135deg,#10B981,#059669);"><i class="bi bi-shield-lock-fill"></i></div>
+                <h5>An toàn &amp; bảo mật</h5>
+                <p>Mật khẩu được mã hóa chuẩn Identity, xác minh danh tính qua Email/SĐT, đăng nhập Google.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon" style="background:linear-gradient(135deg,#F59E0B,#D97706);"><i class="bi bi-piggy-bank-fill"></i></div>
+                <h5>Quản lý ngân sách</h5>
+                <p>Theo dõi thu/chi theo danh mục, nhắc nhở hóa đơn đến hạn, không bỏ lỡ khoản nào.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);"><i class="bi bi-cpu-fill"></i></div>
+                <h5>AI phân tích chi tiêu</h5>
+                <p>Nhận diện thói quen, gợi ý tiết kiệm và dự đoán số dư cuối tháng dựa trên dữ liệu thực tế.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon" style="background:linear-gradient(135deg,#0EA5E9,#2563EB);"><i class="bi bi-qr-code"></i></div>
+                <h5>Thanh toán QR</h5>
+                <p>Tạo mã VietQR chuyển khoản ngân hàng chuẩn, quét được bằng hầu hết app ngân hàng.</p>
+            </div>
+            <div class="landing-feature-card">
+                <div class="landing-feature-icon" style="background:linear-gradient(135deg,#EC4899,#DB2777);"><i class="bi bi-people-fill"></i></div>
+                <h5>Tài chính gia đình</h5>
+                <p>Tạo hộ gia đình, cùng theo dõi chi tiêu chung với người thân một cách minh bạch.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-cta-band">
+        <h3>Sẵn sàng kiểm soát tài chính của bạn?</h3>
+        <p>Tham gia cùng hàng nghìn người dùng đang quản lý tiền bạc thông minh hơn mỗi ngày với MoneyCare.</p>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-landing-cta btn-lg">Tạo tài khoản miễn phí</a>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="landing-footer-inner">
+            <div class="landing-footer-brand">
+                <span class="brand-mark"><i class="bi bi-wallet2"></i></span> MoneyCare
+            </div>
+            <div class="landing-footer-links">
+                <a asp-controller="Contact" asp-action="Index"><i class="bi bi-envelope"></i> Liên hệ &amp; Đóng góp</a>
+                <a href="mailto:@ViewBag.SupportEmail"><i class="bi bi-headset"></i> @ViewBag.SupportEmail</a>
+            </div>
+            <div class="landing-footer-copyright">© 2026 MoneyCare. Bảo lưu mọi quyền.</div>
+        </div>
+    </footer>
+</div>

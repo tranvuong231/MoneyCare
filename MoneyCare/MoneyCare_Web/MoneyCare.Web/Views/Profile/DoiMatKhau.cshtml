@@ -1,0 +1,40 @@
+@model ChangePasswordViewModel
+@{
+    ViewData["Title"] = "Đổi mật khẩu";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Đổi mật khẩu</div>
+            <div class="card-body">
+                <form asp-action="DoiMatKhau" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="MatKhauHienTai" class="form-label"></label>
+                        <input asp-for="MatKhauHienTai" class="form-control" autofocus />
+                        <span asp-validation-for="MatKhauHienTai" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MatKhauMoi" class="form-label"></label>
+                        <input asp-for="MatKhauMoi" class="form-control" />
+                        <span asp-validation-for="MatKhauMoi" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="XacNhanMatKhauMoi" class="form-label"></label>
+                        <input asp-for="XacNhanMatKhauMoi" class="form-control" />
+                        <span asp-validation-for="XacNhanMatKhauMoi" class="text-danger"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Đổi mật khẩu</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

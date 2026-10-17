@@ -1,0 +1,6 @@
+{
+  "_ghiChu": "Mau cau truc. Tai file google-services.json that cua rieng ban tu Firebase Console (Project settings > Your apps > Android) va dat vao android/app/. File that da bi .gitignore, KHONG commit.",
+  "project_info": { "project_number": "000000000000", "project_id": "your-project-id" },
+  "client": [],
+  "configuration_version": "1"
+}

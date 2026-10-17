@@ -1,0 +1,54 @@
+@model List<ContactMessage>
+@{
+    ViewData["Title"] = "Liên hệ & Đóng góp";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <span class="text-muted small">@Model.Count tin nhắn · @Model.Count(m => !m.DaXem) chưa xem</span>
+    <form method="get" class="d-flex gap-2">
+        <input type="text" name="tuKhoa" class="form-control" placeholder="Tìm theo tên / email..." value="@ViewBag.TuKhoa" style="width:280px;" />
+        <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+    </form>
+</div>
+
+<div class="row g-3">
+    @foreach (var tn in Model)
+    {
+        <div class="col-md-6">
+            <div class="card h-100 @(tn.DaXem ? "" : "border-warning")">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>@tn.HoTen</strong>
+                            <div class="small text-muted">@tn.Email</div>
+                        </div>
+                        @if (!tn.DaXem)
+                        {
+                            <span class="badge badge-locked">Chưa xem</span>
+                        }
+                    </div>
+                    <p class="small mb-2" style="white-space:pre-wrap;">@tn.NoiDung</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">@tn.NgayGui.ToString("dd/MM/yyyy HH:mm")</span>
+                        <div class="d-flex gap-1">
+                            <form asp-action="DanhDauDaXem" asp-route-id="@tn.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    @(tn.DaXem ? "Đánh dấu chưa xem" : "Đánh dấu đã xem")
+                                </button>
+                            </form>
+                            <form asp-action="Xoa" asp-route-id="@tn.Id" method="post" onsubmit="return confirm('Xóa tin nhắn này?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12"><p class="text-center text-muted py-5">Chưa có tin nhắn liên hệ nào</p></div>
+    }
+</div>

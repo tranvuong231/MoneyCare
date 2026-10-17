@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "Xuất báo cáo";
+}
+
+<div class="d-flex align-items-center gap-2 mb-1">
+    <h4 class="mb-0">Xuất báo cáo</h4>
+    <span class="badge-premium"><i class="bi bi-stars"></i> Premium</span>
+</div>
+<p class="text-muted mb-4">Chọn khoảng thời gian và định dạng file bạn muốn xuất.</p>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Từ ngày</label>
+                        <div class="input-group">
+                            <input type="text" id="tuNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                            <span class="input-group-text" id="btnMoLichTuNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                        </div>
+                        <input type="date" id="tuNgay" value="@ViewBag.TuNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Đến ngày</label>
+                        <div class="input-group">
+                            <input type="text" id="denNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                            <span class="input-group-text" id="btnMoLichDenNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                        </div>
+                        <input type="date" id="denNgay" value="@ViewBag.DenNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-success w-100 py-3" onclick="xuatFile('Excel')">
+                            <i class="bi bi-file-earmark-excel fs-4 d-block mb-1"></i>
+                            Xuất Excel (.xlsx)
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-danger w-100 py-3" onclick="xuatFile('Pdf')">
+                            <i class="bi bi-file-earmark-pdf fs-4 d-block mb-1"></i>
+                            Xuất PDF (.pdf)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        function ganLichChon(idHienThi, idGoc, idNut) {
+            var hienThi = document.getElementById(idHienThi);
+            var goc = document.getElementById(idGoc);
+            var nut = document.getElementById(idNut);
+            if (!hienThi || !goc) return;
+
+            function moLich() {
+                if (goc.showPicker) { try { goc.showPicker(); return; } catch (e) { } }
+                goc.focus();
+            }
+            hienThi.addEventListener('click', moLich);
+            if (nut) nut.addEventListener('click', moLich);
+
+            function capNhat() {
+                var phan = (goc.value || '').split('-');
+                hienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+            }
+            goc.addEventListener('change', capNhat);
+            capNhat();
+        }
+
+        ganLichChon('tuNgayHienThi', 'tuNgay', 'btnMoLichTuNgay');
+        ganLichChon('denNgayHienThi', 'denNgay', 'btnMoLichDenNgay');
+    })();
+
+    function xuatFile(loai) {
+        const tuNgay = document.getElementById('tuNgay').value;
+        const denNgay = document.getElementById('denNgay').value;
+        if (!tuNgay || !denNgay) { alert('Vui lòng chọn đầy đủ khoảng thời gian'); return; }
+        window.location.href = `/Export/${loai}?tuNgay=${tuNgay}&denNgay=${denNgay}`;
+    }
+</script>
+}

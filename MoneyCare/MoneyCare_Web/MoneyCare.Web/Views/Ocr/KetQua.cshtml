@@ -1,0 +1,162 @@
+@using System.Globalization
+@model Transaction
+@{
+    ViewData["Title"] = "Kết quả quét";
+    var ketQua = ViewBag.KetQuaOcr as MoneyCare.Services.KetQuaOcrHoaDon;
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var soTienChuoi = Model.SoTien.ToString("0", CultureInfo.InvariantCulture);
+}
+
+<div class="d-flex flex-column pb-2" style="height: calc(100vh - 185px); min-height: 480px;">
+    <h5 class="mb-2 fw-bold flex-shrink-0"><i class="bi bi-check-circle"></i> Xác nhận thông tin giao dịch</h5>
+
+    <div class="row g-3 flex-grow-1" style="min-height: 0;">
+        <!-- Khung bên trái: Kết quả nhận diện OCR -->
+        <div class="col-md-6 h-100" style="min-height: 0;">
+            <div class="card h-100" style="min-height: 0;">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center flex-shrink-0">
+                    <span class="fw-semibold small">Kết quả nhận diện (OCR)</span>
+                    @if (ketQua?.NguonPhanTich == "AI")
+                    {
+                    <span class="badge rounded-pill text-bg-success"><i class="bi bi-stars"></i> Đã phân tích bằng AI</span>
+                    }
+                    else
+                    {
+                    <span class="badge rounded-pill text-bg-secondary" title="LM Studio chưa bật/chưa phản hồi kịp"><i class="bi bi-cpu"></i> Theo quy tắc</span>
+                    }
+                </div>
+                <div class="card-body d-flex flex-column py-2" style="min-height: 0; overflow-y: auto;">
+                    <div class="small mb-2 flex-shrink-0">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-shop text-primary"></i>
+                            <span>Cửa hàng/Đối tượng: <strong>@(ketQua?.TenCuaHang ?? "-")</strong></span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-calendar3 text-primary"></i>
+                            <span>Ngày @((ketQua?.LoaiGoiY ?? LoaiGiaoDich.Chi) == LoaiGiaoDich.Thu ? "thu" : "chi"): <strong>@(ketQua?.NgayNhanDien?.ToString("dd/MM/yyyy") ?? "-")</strong></span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-cash-coin text-primary"></i>
+                            <span>Tổng tiền: <strong>@(ketQua?.SoTienNhanDien != null ? ketQua.SoTienNhanDien.Value.ToString("#,##0", vi) + " đ" : "-")</strong></span>
+                        </div>
+                    </div>
+                    <p class="small text-muted mb-1 flex-shrink-0">Văn bản OCR gốc (để đối chiếu):</p>
+                    <pre class="small bg-light p-2 rounded flex-grow-1 mb-0 border" style="min-height: 0; overflow: auto; white-space: pre-wrap;">@ketQua?.VanBanGoc</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khung bên phải: Form xác nhận & lưu -->
+        <div class="col-md-6 h-100" style="min-height: 0;">
+            <div class="card h-100" style="min-height: 0;">
+                <div class="card-header py-2 fw-semibold small flex-shrink-0">Xác nhận &amp; lưu giao dịch</div>
+                <div class="card-body py-3" style="min-height: 0; overflow-y: auto;">
+                    <form asp-controller="Ocr" asp-action="XacNhanLuu" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-2">
+                            <label asp-for="Loai" class="form-label mb-1 small"></label>
+                            <select asp-for="Loai" class="form-select" id="selLoai" asp-items="Html.GetEnumSelectList<LoaiGiaoDich>()"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label asp-for="CategoryId" class="form-label mb-1 small"></label>
+                            <select asp-for="CategoryId" class="form-select" id="selDanhMuc">
+                                <option value="">-- Chọn danh mục --</option>
+                                @foreach (var dm in (IEnumerable<Category>)ViewBag.DanhMucs)
+                                {
+                                <option value="@dm.Id" data-loai="@((int)dm.Loai)" selected="@(dm.Id == Model.CategoryId)">@dm.TenDanhMuc</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-2">
+                            <label asp-for="SoTien" class="form-label mb-1 small"></label>
+                            <div class="input-group">
+                                <input type="text" id="soTienHienThi" class="form-control text-end" inputmode="numeric" autocomplete="off" value="@soTienChuoi" />
+                                <span class="input-group-text">₫</span>
+                            </div>
+                            <input type="hidden" id="SoTien" name="SoTien" value="@soTienChuoi" />
+                            <span asp-validation-for="SoTien" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-2">
+                            <label asp-for="NgayGiaoDich" class="form-label mb-1 small"></label>
+                            <div class="input-group">
+                                <input type="text" id="ngayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                                <span class="input-group-text" id="btnMoLichNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                            </div>
+                            <input asp-for="NgayGiaoDich" id="inpNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+                            <span asp-validation-for="NgayGiaoDich" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="GhiChu" class="form-label mb-1 small"></label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="VD: Hóa đơn siêu thị"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Lưu giao dịch</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Quét lại</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var selLoai = document.getElementById('selLoai');
+            var selDanhMuc = document.getElementById('selDanhMuc');
+
+            function locDanhMucTheoLoai() {
+                var loaiDangChon = selLoai.value;
+                var dangChonHopLe = false;
+
+                Array.from(selDanhMuc.options).forEach(function (opt) {
+                    if (opt.value === "") return;
+                    var khop = opt.getAttribute('data-loai') === loaiDangChon;
+                    opt.hidden = !khop;
+                    if (khop && opt.selected) dangChonHopLe = true;
+                });
+
+                if (!dangChonHopLe) selDanhMuc.value = "";
+            }
+
+            selLoai.addEventListener('change', locDanhMucTheoLoai);
+            locDanhMucTheoLoai();
+
+            var soTienHienThi = document.getElementById('soTienHienThi');
+            var soTienHidden = document.getElementById('SoTien');
+
+            function dinhDangSoTien(chuoiSo) {
+                return chuoiSo ? Number(chuoiSo).toLocaleString('vi-VN') : '';
+            }
+
+            soTienHienThi.value = dinhDangSoTien(soTienHidden.value);
+            soTienHienThi.addEventListener('input', function () {
+                var chiSo = this.value.replace(/\D/g, '');
+                soTienHidden.value = chiSo || '0';
+                this.value = dinhDangSoTien(chiSo);
+            });
+
+            var inpNgay = document.getElementById('inpNgay');
+            var ngayHienThi = document.getElementById('ngayHienThi');
+            var btnMoLichNgay = document.getElementById('btnMoLichNgay');
+
+            function moLichNgay() {
+                if (inpNgay.showPicker) { try { inpNgay.showPicker(); return; } catch (e) { } }
+                inpNgay.focus();
+            }
+            ngayHienThi.addEventListener('click', moLichNgay);
+            btnMoLichNgay.addEventListener('click', moLichNgay);
+
+            function capNhatNgayHienThi() {
+                var phan = (inpNgay.value || '').split('-');
+                ngayHienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+            }
+
+            inpNgay.addEventListener('change', capNhatNgayHienThi);
+            capNhatNgayHienThi();
+        })();
+    </script>
+}

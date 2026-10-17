@@ -1,0 +1,178 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Trang cá nhân";
+}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="position-relative d-inline-block mb-3">
+                    @if (!string.IsNullOrEmpty(Model.DuongDanAnhDaiDien))
+                    {
+                        <img src="@Model.DuongDanAnhDaiDien" alt="Ảnh đại diện" class="profile-avatar-img" />
+                    }
+                    else
+                    {
+                        <div class="user-avatar mx-auto" style="width:72px;height:72px;font-size:1.7rem;">
+                            @((Model.HoTen ?? Model.UserName ?? "U").Substring(0,1).ToUpper())
+                        </div>
+                    }
+                    <button type="button" class="avatar-edit-btn" data-bs-toggle="modal" data-bs-target="#modalDoiAnh" title="Đổi ảnh đại diện">
+                        <i class="bi bi-camera-fill"></i>
+                    </button>
+                </div>
+                <div class="d-flex align-items-center justify-content-center gap-1">
+                    <h5 class="mb-0">@Model.HoTen</h5>
+                    @if (Model.DaXacMinhDanhTinh)
+                    {
+                        <i class="bi bi-patch-check-fill text-primary" title="Đã xác minh danh tính"></i>
+                    }
+                </div>
+                <p class="text-muted small mb-2">@Model.Email</p>
+
+                @if (Model.PremiumConHieuLuc)
+                {
+                    <span class="badge-premium"><i class="bi bi-stars"></i> Thành viên Premium</span>
+                    <div class="small text-muted mt-1">Hết hạn: @Model.PremiumHetHan?.ToString("dd/MM/yyyy")</div>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Thành viên Miễn phí</span>
+                    <div class="mt-2">
+                        <a asp-controller="Premium" asp-action="Pricing" class="btn btn-sm btn-primary">
+                            <i class="bi bi-stars"></i> Nâng cấp Premium
+                        </a>
+                    </div>
+                }
+
+                <hr />
+                <a asp-action="Edit" class="btn btn-outline-primary w-100 mb-2"><i class="bi bi-pencil"></i> Sửa hồ sơ</a>
+                <a asp-action="DoiMatKhau" class="btn btn-outline-secondary w-100"><i class="bi bi-key"></i> Đổi mật khẩu</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">Thông tin liên hệ</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small">Tên đăng nhập</div>
+                    <div class="col-sm-8">@Model.UserName</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small">Email</div>
+                    <div class="col-sm-8">
+                        @Model.Email
+                        @if (Model.EmailConfirmed)
+                        {
+                            <span class="badge badge-active ms-1"><i class="bi bi-check-circle"></i> Đã xác minh</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary ms-1">Chưa xác minh</span>
+                            <form asp-action="GuiXacMinhEmail" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link btn-sm p-0 ms-1">Gửi email xác minh</button>
+                            </form>
+                        }
+                        <div class="form-text">Không thể thay đổi email sau khi đăng ký.</div>
+                    </div>
+                </div>
+
+                @if (TempData["LinkXacMinhEmailDemo"] != null)
+                {
+                    <div class="alert alert-warning small">
+                        <i class="bi bi-info-circle"></i> <strong>Chế độ demo:</strong> chưa cấu hình SMTP, đây là link xác minh:<br />
+                        <a href="@TempData["LinkXacMinhEmailDemo"]" class="text-break">@TempData["LinkXacMinhEmailDemo"]</a>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-sm-4 text-muted small">Số điện thoại</div>
+                    <div class="col-sm-8">
+                        @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                        {
+                            @Model.PhoneNumber
+                            @if (Model.PhoneNumberConfirmed)
+                            {
+                                <span class="badge badge-active ms-1"><i class="bi bi-check-circle"></i> Đã xác minh</span>
+                            }
+                            <a asp-action="ThemSoDienThoai" class="btn btn-link btn-sm p-0 ms-2">Đổi số điện thoại</a>
+                            <div class="form-text">Đổi số điện thoại sẽ cần xác minh lại; nếu đã có tích xanh, tích xanh sẽ tạm mất tới khi xác minh xong số mới.</div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Chưa thêm số điện thoại</span>
+                            <a asp-action="ThemSoDienThoai" class="btn btn-link btn-sm p-0 ms-1">Thêm ngay</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Thông tin cá nhân</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-muted small">Ngày sinh</div>
+                    <div class="col-sm-8">@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-muted small">Giới tính</div>
+                    <div class="col-sm-8">
+                        @(Model.GioiTinh switch
+                        {
+                            MoneyCare.Models.GioiTinh.Nam => "Nam",
+                            MoneyCare.Models.GioiTinh.Nu => "Nữ",
+                            MoneyCare.Models.GioiTinh.Khac => "Khác",
+                            _ => "Chưa cập nhật"
+                        })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 text-muted small">Số CCCD/CMND</div>
+                    <div class="col-sm-8">@(string.IsNullOrEmpty(Model.CanCuocCongDan) ? "Chưa cập nhật" : Model.CanCuocCongDan)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal đổi ảnh đại diện -->
+<div class="modal fade" id="modalDoiAnh" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Profile" asp-action="DoiAnhDaiDien" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-camera"></i> Đổi ảnh đại diện</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="file" name="anhDaiDien" accept=".jpg,.jpeg,.png,.webp" class="form-control" required
+                           onchange="xemTruocAnh(this)" />
+                    <div class="form-text">Chấp nhận JPG, PNG, WEBP — tối đa 3MB.</div>
+                    <div class="text-center mt-3">
+                        <img id="previewAnh" src="" alt="" class="d-none" style="max-width:180px;border-radius:50%;" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Lưu ảnh</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function xemTruocAnh(input) {
+        if (input.files && input.files[0]) {
+            const preview = document.getElementById('previewAnh');
+            preview.src = URL.createObjectURL(input.files[0]);
+            preview.classList.remove('d-none');
+        }
+    }
+</script>

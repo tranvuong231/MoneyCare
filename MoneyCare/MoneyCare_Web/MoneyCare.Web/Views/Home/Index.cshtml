@@ -1,0 +1,167 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Tổng quan";
+}
+
+<p class="text-muted mb-4">Xin chào! Đây là tình hình tài chính của bạn trong tháng @DateTime.Today.Month/@DateTime.Today.Year.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card stat-income">
+            <i class="bi bi-arrow-down-circle stat-icon"></i>
+            <div class="stat-label">Tổng thu</div>
+            <div class="stat-value">@Model.TongThu.ToString("N0") đ</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card stat-expense">
+            <i class="bi bi-arrow-up-circle stat-icon"></i>
+            <div class="stat-label">Tổng chi</div>
+            <div class="stat-value">@Model.TongChi.ToString("N0") đ</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card @(Model.SoDu >= 0 ? "stat-balance" : "stat-neutral")">
+            <i class="bi bi-piggy-bank stat-icon"></i>
+            <div class="stat-label">Số dư</div>
+            <div class="stat-value">@Model.SoDu.ToString("N0") đ</div>
+        </div>
+    </div>
+</div>
+
+<div class="alert d-flex align-items-center gap-3 mb-4" style="background:linear-gradient(135deg, rgba(20,184,166,.08), rgba(14,165,233,.06)); border:1px solid rgba(20,184,166,.25);">
+    <i class="bi bi-cpu fs-3" style="color:#14B8A6;"></i>
+    <div class="flex-grow-1">
+        <strong>Mới:</strong> AI phân tích thói quen chi tiêu, gợi ý tiết kiệm và dự đoán số dư cuối tháng đã sẵn sàng.
+    </div>
+    <a asp-controller="Insights" asp-action="Index" class="btn btn-sm btn-primary">Xem ngay</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white"><i class="bi bi-pie-chart"></i> Chi tiêu theo danh mục (tháng này)</div>
+            <div class="card-body">
+                @if (Model.TenDanhMucChi.Any())
+                {
+                    <canvas id="chiTietChart"></canvas>
+                }
+                else
+                {
+                    <p class="text-muted text-center my-4 mb-0">Chưa có dữ liệu chi tiêu trong tháng này</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white"><i class="bi bi-bar-chart-line"></i> Thu chi 6 tháng gần đây</div>
+            <div class="card-body">
+                <canvas id="thuChiChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history"></i> Giao dịch gần đây</span>
+                <a asp-controller="Transactions" asp-action="Index" class="small">Xem tất cả &raquo;</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var gd in Model.GiaoDichGanDay)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge" style="background-color:@gd.Category?.MauSac">@gd.Category?.TenDanhMuc</span>
+                            @Html.Raw(GiaoDichIconHelper.HtmlIconNguon(gd))
+                            <small class="text-muted ms-2" title="Lưu vào hệ thống lúc: @gd.ThoiGianTao.ToString("dd/MM/yyyy HH:mm:ss")">@gd.NgayGiaoDich.ToString("dd/MM/yyyy")</small>
+                            @if (!string.IsNullOrEmpty(gd.GhiChu))
+                            {
+                                <div class="small text-muted">@gd.GhiChu</div>
+                            }
+                        </div>
+                        <span class="fw-bold @(gd.Loai == LoaiGiaoDich.Thu ? "text-success" : "text-danger")">
+                            @(gd.Loai == LoaiGiaoDich.Thu ? "+" : "-")@gd.SoTien.ToString("N0") đ
+                        </span>
+                    </li>
+                }
+                @if (!Model.GiaoDichGanDay.Any())
+                {
+                    <li class="list-group-item text-muted text-center py-4">Chưa có giao dịch nào</li>
+                }
+            </ul>
+            <div class="card-footer bg-white text-center">
+                <a asp-controller="Transactions" asp-action="Create" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg"></i> Thêm giao dịch
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bell"></i> Hóa đơn sắp đến hạn</span>
+                <a asp-controller="Bills" asp-action="Index" class="small">Xem tất cả &raquo;</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var hd in Model.HoaDonSapToiHan)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div>@hd.TenHoaDon</div>
+                            <small class="@(hd.SoNgayConLai < 0 ? "text-danger" : "text-warning")">
+                                @(hd.SoNgayConLai < 0 ? $"Quá hạn {-hd.SoNgayConLai} ngày" : hd.SoNgayConLai == 0 ? "Đến hạn hôm nay" : $"Còn {hd.SoNgayConLai} ngày")
+                            </small>
+                        </div>
+                        <span class="fw-bold">@hd.SoTien.ToString("N0") đ</span>
+                    </li>
+                }
+                @if (!Model.HoaDonSapToiHan.Any())
+                {
+                    <li class="list-group-item text-muted text-center py-4">Không có hóa đơn nào sắp đến hạn</li>
+                }
+            </ul>
+            <div class="card-footer bg-white text-center">
+                <a asp-controller="Bills" asp-action="Create" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-lg"></i> Thêm hóa đơn
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    @if (Model.TenDanhMucChi.Any())
+    {
+        <text>
+        new Chart(document.getElementById('chiTietChart'), {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TenDanhMucChi)),
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SoTienTheoDanhMucChi)),
+                    backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MauSacDanhMucChi))
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+        </text>
+    }
+
+    new Chart(document.getElementById('thuChiChart'), {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NhanThang)),
+            datasets: [
+                { label: 'Thu', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ThuTheoThang)), backgroundColor: '#198754' },
+                { label: 'Chi', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChiTheoThang)), backgroundColor: '#dc3545' }
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+</script>
+}

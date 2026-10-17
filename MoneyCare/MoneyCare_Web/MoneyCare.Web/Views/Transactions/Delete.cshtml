@@ -1,0 +1,24 @@
+@model Transaction
+@{
+    ViewData["Title"] = "Xóa giao dịch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white"><i class="bi bi-exclamation-triangle"></i> Xác nhận xóa</div>
+            <div class="card-body">
+                <p>Bạn có chắc chắn muốn xóa giao dịch sau không?</p>
+                <ul>
+                    <li>Ngày: <strong>@Model.NgayGiaoDich.ToString("dd/MM/yyyy")</strong></li>
+                    <li>Danh mục: <strong>@Model.Category?.TenDanhMuc</strong></li>
+                    <li>Số tiền: <strong>@Model.SoTien.ToString("N0") đ</strong></li>
+                </ul>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Xóa</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

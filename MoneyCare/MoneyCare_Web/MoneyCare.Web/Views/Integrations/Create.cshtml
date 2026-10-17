@@ -1,0 +1,51 @@
+@model FinancialLink
+@{
+    ViewData["Title"] = "Kết nối tài khoản";
+    var tenNcc = Model.NhaCungCap switch
+    {
+        NhaCungCap.NganHang => "Ngân hàng",
+        NhaCungCap.MoMo => "Ví MoMo",
+        _ => "Ví ZaloPay"
+    };
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Kết nối @tenNcc</div>
+            <div class="card-body">
+                @*<div class="alert alert-warning small">
+                    <i class="bi bi-shield-lock"></i>
+                    @if (TempData["ThongBaoDemo"] != null)
+                    {
+                        <text><strong>Chế độ demo:</strong> @TempData["ThongBaoDemo"]<br /></text>
+                    }
+                    Thông tin bên dưới do bạn tự nhập (không gọi API thật, không lưu mật khẩu).
+                    Số tài khoản sẽ được ẩn bớt khi hiển thị.
+                </div>*@
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="NhaCungCap" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="TenGoiNho" class="form-label"></label>
+                        <input asp-for="TenGoiNho" class="form-control" placeholder="VD: Vietcombank cá nhân" autofocus />
+                        <span asp-validation-for="TenGoiNho" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số tài khoản / Số điện thoại</label>
+                        <input type="text" name="soTaiKhoanDayDu" class="form-control" placeholder="Nhập số tài khoản hoặc SĐT ví" required />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="GhiChu" class="form-label"></label>
+                        <textarea asp-for="GhiChu" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Lưu liên kết</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

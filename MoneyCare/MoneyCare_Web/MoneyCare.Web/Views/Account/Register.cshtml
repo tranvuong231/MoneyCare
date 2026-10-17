@@ -1,0 +1,65 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+    Layout = "_Layout";
+}
+
+<div class="auth-page">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-brand">
+            <span class="brand-mark"><i class="bi bi-wallet2"></i></span>
+            <span class="brand-text">MoneyCare</span>
+        </div>
+        <h3 class="auth-title">Tạo tài khoản miễn phí</h3>
+        <p class="auth-subtitle">Bắt đầu kiểm soát tài chính cá nhân chỉ trong 1 phút</p>
+
+        <form asp-controller="Account" asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+            <div class="mb-3">
+                <label asp-for="HoTen" class="form-label"></label>
+                <input asp-for="HoTen" class="form-control" autofocus />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2">Đăng ký</button>
+        </form>
+
+        <div class="auth-divider"><span>hoặc</span></div>
+
+        <form asp-controller="Account" asp-action="DangNhapGoogle" method="post">
+            <button type="submit" class="btn btn-google w-100 py-2">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" />
+                Đăng ký với Google
+            </button>
+        </form>
+
+        <p class="text-center mt-4 mb-0 text-muted">
+            Đã có tài khoản? <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

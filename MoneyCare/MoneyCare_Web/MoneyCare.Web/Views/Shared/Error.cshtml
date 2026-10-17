@@ -1,0 +1,16 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Lỗi";
+}
+
+<div class="text-center py-5">
+    <i class="bi bi-exclamation-octagon text-danger" style="font-size: 4rem;"></i>
+    <h1 class="text-danger mt-3">Đã xảy ra lỗi khi xử lý yêu cầu của bạn.</h1>
+    @if (Model.ShowRequestId)
+    {
+        <p class="text-muted">
+            <strong>Mã yêu cầu:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Về trang chủ</a>
+</div>

@@ -1,0 +1,120 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Cài đặt";
+}
+
+<h4 class="mb-4"><i class="bi bi-gear"></i> Cài đặt</h4>
+
+<ul class="nav nav-tabs mb-4" id="settingsTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabGiaoDien" type="button">
+            <i class="bi bi-palette"></i> Giao diện &amp; hiển thị
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabThongBao" type="button">
+            <i class="bi bi-bell"></i> Thông báo &amp; nhắc nhở
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- TAB 1: GIAO DIỆN -->
+    <div class="tab-pane fade show active" id="tabGiaoDien">
+        <div class="card">
+            <div class="card-body">
+                <form asp-controller="Settings" asp-action="CapNhatGiaoDien" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <h6 class="mb-3">Chế độ hiển thị</h6>
+                    <div class="theme-switch-group mb-4">
+                        <label class="theme-option">
+                            <input type="radio" name="giaoDienToi" value="false" @(!Model.GiaoDienToi ? "checked" : "") />
+                            <div class="theme-option-card">
+                                <i class="bi bi-sun-fill"></i>
+                                <span>Sáng</span>
+                            </div>
+                        </label>
+                        <label class="theme-option">
+                            <input type="radio" name="giaoDienToi" value="true" @(Model.GiaoDienToi ? "checked" : "") />
+                            <div class="theme-option-card">
+                                <i class="bi bi-moon-stars-fill"></i>
+                                <span>Tối</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <h6 class="mb-2">Ảnh nền ứng dụng</h6>
+                    <p class="text-muted small">Ảnh nền sẽ hiển thị phía sau giao diện. Nên chọn ảnh có độ tương phản thấp để dễ đọc nội dung.</p>
+
+                    @if (!string.IsNullOrEmpty(Model.DuongDanAnhNen))
+                    {
+                        <div class="mb-3">
+                            <img src="@Model.DuongDanAnhNen" alt="Ảnh nền hiện tại" class="settings-bg-preview" />
+                            <div class="form-check mt-2">
+                                <input type="checkbox" name="xoaAnhNen" value="true" class="form-check-input" id="xoaAnhNen" />
+                                <label class="form-check-label" for="xoaAnhNen">Xóa ảnh nền hiện tại</label>
+                            </div>
+                        </div>
+                    }
+
+                    <input type="file" name="anhNen" accept=".jpg,.jpeg,.png,.webp" class="form-control mb-1" />
+                    <div class="form-text mb-3">JPG, PNG, WEBP tối đa 5MB.</div>
+
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Lưu thay đổi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: THÔNG BÁO -->
+    <div class="tab-pane fade" id="tabThongBao">
+        <div class="card">
+            <div class="card-body">
+                <form asp-controller="Settings" asp-action="CapNhatThongBao" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="settings-toggle-row">
+                        <div>
+                            <h6 class="mb-1">Báo cáo tài chính định kỳ</h6>
+                            <p class="text-muted small mb-0">Nhận email tóm tắt thu/chi theo tần suất bạn chọn.</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="batBaoCaoTaiChinh" value="true" role="switch"
+                                   @(Model.BatBaoCaoTaiChinh ? "checked" : "") />
+                        </div>
+                    </div>
+
+                    <div class="settings-toggle-row">
+                        <div>
+                            <h6 class="mb-1">Nhắc nhở nhập liệu</h6>
+                            <p class="text-muted small mb-0">Nhắc bạn qua email nếu lâu rồi chưa ghi nhận giao dịch nào.</p>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="batNhacNhoNhapLieu" value="true" role="switch"
+                                   @(Model.BatNhacNhoNhapLieu ? "checked" : "") />
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tần suất báo cáo</label>
+                            <select name="tanSuatBaoCao" class="form-select">
+                                <option value="@((int)TanSuatBaoCao.HangNgay)" selected="@(Model.TanSuatBaoCao == TanSuatBaoCao.HangNgay)">Hằng ngày</option>
+                                <option value="@((int)TanSuatBaoCao.HangTuan)" selected="@(Model.TanSuatBaoCao == TanSuatBaoCao.HangTuan)">Hằng tuần</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Giờ gửi báo cáo</label>
+                            <input type="time" name="gioBaoCao" class="form-control" value="@Model.GioBaoCao.ToString(@"hh\:mm")" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-4"><i class="bi bi-check-lg"></i> Lưu cài đặt</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Xác minh Email";
+    Layout = "_Layout";
+}
+
+<div class="auth-page">
+    <div class="auth-card text-center">
+        <i class="bi bi-x-circle text-danger" style="font-size:3rem;"></i>
+        <h3 class="auth-title mt-2">Xác minh Email thất bại</h3>
+        <p class="auth-subtitle">Đường link không hợp lệ hoặc đã hết hạn. Vui lòng thử gửi lại từ trang cá nhân.</p>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100 py-2">Đăng nhập</a>
+    </div>
+</div>

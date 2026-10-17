@@ -1,0 +1,85 @@
+@{
+    ViewData["Title"] = "Liên kết ZaloPay (UAT)";
+    var appTransId = ViewBag.AppTransId as string;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-qr-code"></i> Xác thực liên kết ZaloPay (UAT)
+            </div>
+            <div class="card-body text-center">
+                <p class="text-muted small">
+                    Quét mã bằng <strong>app ZaloPay (đăng nhập tài khoản UAT/sandbox)</strong> và thanh toán
+                    1.000đ để xác thực bạn đang sở hữu tài khoản ZaloPay này. Liên kết sẽ
+                    <strong>tự động hoàn tất</strong> ngay khi thanh toán thành công, không cần bấm gì thêm.
+                </p>
+
+                <div id="khuVucQr">
+                    <img id="imgQr" src="@Url.Action("AnhQrLienKetZaloPay", new { appTransId })" alt="QR ZaloPay"
+                         style="width:260px;height:260px;" class="mb-3" />
+                    <div class="text-danger fw-bold mb-3">1.000 đ</div>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <span class="small text-muted">Đang chờ thanh toán...</span>
+                    </div>
+                </div>
+
+                <div id="khuVucThanhCong" class="d-none alert alert-success mt-3">
+                    <i class="bi bi-check-circle-fill"></i> Liên kết ZaloPay thành công!
+                    Đang chuyển về trang Liên kết NH/Ví trong <span id="demNguoc">5</span>s...
+                </div>
+                <div id="khuVucLoi" class="d-none alert alert-danger small mt-3"></div>
+
+                <a asp-action="Index" class="btn btn-link mt-3">Hủy, quay lại trang Liên kết NH/Ví</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const appTransId = @Html.Raw(Json.Serialize(appTransId));
+            const khuVucQr = document.getElementById('khuVucQr');
+            const khuVucThanhCong = document.getElementById('khuVucThanhCong');
+            const khuVucLoi = document.getElementById('khuVucLoi');
+            const demNguocEl = document.getElementById('demNguoc');
+
+            const urlIndex = '@Url.Action("Index")';
+
+            const polling = setInterval(async function () {
+                try {
+                    const res = await fetch('@Url.Action("KiemTraLienKetZaloPay")?appTransId=' + encodeURIComponent(appTransId));
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    if (data.trangThai === 'ThanhCong') {
+                        clearInterval(polling);
+                        khuVucQr.classList.add('d-none');
+                        khuVucThanhCong.classList.remove('d-none');
+
+                        // Đếm ngược 5 giây rồi tự động quay về trang Liên kết NH/Ví (hiển thị ví đã kết nối)
+                        let giay = 5;
+                        const demNguoc = setInterval(function () {
+                            giay -= 1;
+                            demNguocEl.textContent = giay;
+                            if (giay <= 0) {
+                                clearInterval(demNguoc);
+                                window.location.href = urlIndex;
+                            }
+                        }, 1000);
+                    } else if (data.trangThai === 'ThatBai') {
+                        clearInterval(polling);
+                        khuVucQr.classList.add('d-none');
+                        khuVucLoi.textContent = 'Thanh toán xác thực thất bại hoặc đơn đã hết hạn. Vui lòng quay lại và thử lại.';
+                        khuVucLoi.classList.remove('d-none');
+                    }
+                } catch (e) {
+                    // Bỏ qua lỗi tạm thời của 1 lần polling (VD mất mạng thoáng qua), thử lại ở lần sau
+                }
+            }, 3000);
+        })();
+    </script>
+}

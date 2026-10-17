@@ -1,0 +1,95 @@
+@using System.Globalization
+@model Bill
+@{
+    ViewData["Title"] = "Thêm hóa đơn";
+    var soTienChuoi = Model.SoTien.ToString("0", CultureInfo.InvariantCulture);
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><i class="bi bi-plus-lg"></i> Thêm hóa đơn mới</div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    <div class="mb-3">
+                        <label asp-for="TenHoaDon" class="form-label"></label>
+                        <input asp-for="TenHoaDon" class="form-control" autofocus placeholder="VD: Hóa đơn điện tháng 7" />
+                        <span asp-validation-for="TenHoaDon" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SoTien" class="form-label"></label>
+                        <div class="input-group">
+                            <input type="text" id="soTienHienThi" class="form-control text-end" inputmode="numeric" autocomplete="off" value="@soTienChuoi" />
+                            <span class="input-group-text">₫</span>
+                        </div>
+                        <input type="hidden" id="SoTien" name="SoTien" value="@soTienChuoi" />
+                        <span asp-validation-for="SoTien" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="NgayDenHan" class="form-label"></label>
+                        <div class="input-group">
+                            <input type="text" id="ngayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                            <span class="input-group-text" id="btnMoLichNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                        </div>
+                        <input asp-for="NgayDenHan" id="inpNgay" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+                        <span asp-validation-for="NgayDenHan" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="GhiChu" class="form-label"></label>
+                        <textarea asp-for="GhiChu" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input asp-for="DaThanhToan" class="form-check-input" />
+                        <label asp-for="DaThanhToan" class="form-check-label"></label>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Lưu</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var soTienHienThi = document.getElementById('soTienHienThi');
+            var soTienHidden = document.getElementById('SoTien');
+
+            function dinhDangSoTien(chuoiSo) {
+                return chuoiSo ? Number(chuoiSo).toLocaleString('vi-VN') : '';
+            }
+
+            soTienHienThi.value = dinhDangSoTien(soTienHidden.value);
+            soTienHienThi.addEventListener('input', function () {
+                var chiSo = this.value.replace(/\D/g, '');
+                soTienHidden.value = chiSo || '0';
+                this.value = dinhDangSoTien(chiSo);
+            });
+
+            var inpNgay = document.getElementById('inpNgay');
+            var ngayHienThi = document.getElementById('ngayHienThi');
+            var btnMoLichNgay = document.getElementById('btnMoLichNgay');
+
+            function moLichNgay() {
+                if (inpNgay.showPicker) { try { inpNgay.showPicker(); return; } catch (e) { } }
+                inpNgay.focus();
+            }
+            ngayHienThi.addEventListener('click', moLichNgay);
+            btnMoLichNgay.addEventListener('click', moLichNgay);
+
+            function capNhatNgayHienThi() {
+                var phan = (inpNgay.value || '').split('-');
+                ngayHienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+            }
+
+            inpNgay.addEventListener('change', capNhatNgayHienThi);
+            capNhatNgayHienThi();
+        })();
+    </script>
+}
+

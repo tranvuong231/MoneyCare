@@ -1,0 +1,48 @@
+@model List<Household>
+@{
+    ViewData["Title"] = "Hộ gia đình";
+}
+
+<form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="tuKhoa" value="@ViewBag.TuKhoa" class="form-control" placeholder="Tìm theo tên hộ / mã mời..." style="max-width:320px" />
+    <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i> Tìm</button>
+</form>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table admin-table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Tên hộ gia đình</th>
+                    <th>Chủ hộ</th>
+                    <th>Mã mời</th>
+                    <th>Số thành viên</th>
+                    <th>Ngày tạo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var h in Model)
+                {
+                    <tr>
+                        <td>@h.TenHoGiaDinh</td>
+                        <td>@(h.ChuHo?.HoTen ?? h.ChuHo?.Email)</td>
+                        <td><code>@h.MaMoi</code></td>
+                        <td>@(h.ThanhVien?.Count ?? 0)</td>
+                        <td>@h.NgayTao.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <form asp-action="Xoa" asp-route-id="@h.Id" method="post" onsubmit="return confirm('Xóa hộ gia đình \'@h.TenHoGiaDinh\'? Toàn bộ thành viên sẽ về trạng thái không có hộ.');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Chưa có hộ gia đình nào</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

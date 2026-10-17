@@ -1,0 +1,56 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "_Layout";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <span class="brand-mark"><i class="bi bi-wallet2"></i></span>
+            <span class="brand-text">MoneyCare</span>
+        </div>
+        <h3 class="auth-title">Chào mừng trở lại</h3>
+        <p class="auth-subtitle">Đăng nhập để tiếp tục quản lý tài chính của bạn</p>
+
+        <form asp-controller="Account" asp-action="Login" method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" autofocus />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+                <div class="form-text">Bạn có thể nhập tên đăng nhập hoặc email.</div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+                <div class="text-end mt-1">
+                    <a asp-controller="Account" asp-action="ForgotPassword" class="small">Quên mật khẩu?</a>
+                </div>
+            </div>
+            <div class="form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label"></label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2">Đăng nhập</button>
+        </form>
+
+        <div class="auth-divider"><span>hoặc</span></div>
+
+        <form asp-controller="Account" asp-action="DangNhapGoogle" method="post">
+            <button type="submit" class="btn btn-google w-100 py-2">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" />
+                Đăng nhập với Google
+            </button>
+        </form>
+
+        <p class="text-center mt-4 mb-0 text-muted">
+            Chưa có tài khoản? <a asp-controller="Account" asp-action="Register">Đăng ký ngay</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

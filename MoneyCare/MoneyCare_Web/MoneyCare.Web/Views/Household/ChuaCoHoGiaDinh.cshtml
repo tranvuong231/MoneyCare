@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Gia đình";
+}
+
+<div class="d-flex align-items-center gap-2 mb-1">
+    <h4 class="mb-0">Quản lý tài chính gia đình</h4>
+    <span class="badge-premium"><i class="bi bi-stars"></i> Premium</span>
+</div>
+<p class="text-muted mb-4">Tạo hoặc tham gia một hộ gia đình để cùng theo dõi chi tiêu chung với người thân.</p>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+        <div class="card h-100 text-center p-4">
+            <i class="bi bi-house-add fs-1 mb-3" style="color:#14B8A6;"></i>
+            <h5>Tạo hộ gia đình mới</h5>
+            <p class="text-muted small">Bạn sẽ là chủ hộ và nhận được mã mời để chia sẻ cho các thành viên khác.</p>
+            <a asp-action="Create" class="btn btn-primary mt-2">Tạo ngay</a>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card h-100 text-center p-4">
+            <i class="bi bi-house-check fs-1 mb-3" style="color:#0EA5E9;"></i>
+            <h5>Tham gia hộ gia đình</h5>
+            <p class="text-muted small">Đã có mã mời từ người thân? Nhập vào đây để tham gia nhóm của họ.</p>
+            <a asp-action="ThamGia" class="btn btn-outline-primary mt-2">Nhập mã mời</a>
+        </div>
+    </div>
+</div>

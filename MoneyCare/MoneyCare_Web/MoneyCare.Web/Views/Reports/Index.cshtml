@@ -1,0 +1,154 @@
+@model ReportViewModel
+@{
+    ViewData["Title"] = "Báo cáo";
+}
+
+<h2 class="mb-4"><i class="bi bi-bar-chart"></i> Báo cáo thống kê</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small">Từ ngày</label>
+                <div class="input-group">
+                    <input type="text" id="tuNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                    <span class="input-group-text" id="btnMoLichTuNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                </div>
+                <input type="date" name="tuNgay" id="inpTuNgay" value="@Model.TuNgay.ToString("yyyy-MM-dd")" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Đến ngày</label>
+                <div class="input-group">
+                    <input type="text" id="denNgayHienThi" class="form-control" readonly placeholder="dd/mm/yyyy" style="cursor:pointer;" />
+                    <span class="input-group-text" id="btnMoLichDenNgay" style="cursor:pointer;"><i class="bi bi-calendar3"></i></span>
+                </div>
+                <input type="date" name="denNgay" id="inpDenNgay" value="@Model.DenNgay.ToString("yyyy-MM-dd")" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Xem báo cáo</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-1">Tổng thu</h6>
+                <h3 class="mb-0">@Model.TongThu.ToString("N0") đ</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-1">Tổng chi</h6>
+                <h3 class="mb-0">@Model.TongChi.ToString("N0") đ</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white @(Model.SoDu >= 0 ? "bg-primary" : "bg-secondary") shadow-sm">
+            <div class="card-body">
+                <h6 class="mb-1">Số dư</h6>
+                <h3 class="mb-0">@Model.SoDu.ToString("N0") đ</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">Chi tiêu theo danh mục</div>
+            <div class="card-body">
+                @if (Model.TenDanhMucChi.Any())
+                {
+                    <canvas id="chiChart"></canvas>
+                }
+                else
+                {
+                    <p class="text-muted text-center my-4 mb-0">Không có dữ liệu chi tiêu trong khoảng thời gian này</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">Thu nhập theo danh mục</div>
+            <div class="card-body">
+                @if (Model.TenDanhMucThu.Any())
+                {
+                    <canvas id="thuChart"></canvas>
+                }
+                else
+                {
+                    <p class="text-muted text-center my-4 mb-0">Không có dữ liệu thu nhập trong khoảng thời gian này</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        function ganLichChon(idHienThi, idGoc, idNut) {
+            var hienThi = document.getElementById(idHienThi);
+            var goc = document.getElementById(idGoc);
+            var nut = document.getElementById(idNut);
+            if (!hienThi || !goc) return;
+
+            function moLich() {
+                if (goc.showPicker) { try { goc.showPicker(); return; } catch (e) { } }
+                goc.focus();
+            }
+            hienThi.addEventListener('click', moLich);
+            if (nut) nut.addEventListener('click', moLich);
+
+            function capNhat() {
+                var phan = (goc.value || '').split('-');
+                hienThi.value = phan.length === 3 ? (phan[2] + '/' + phan[1] + '/' + phan[0]) : '';
+            }
+            goc.addEventListener('change', capNhat);
+            capNhat();
+        }
+
+        ganLichChon('tuNgayHienThi', 'inpTuNgay', 'btnMoLichTuNgay');
+        ganLichChon('denNgayHienThi', 'inpDenNgay', 'btnMoLichDenNgay');
+    })();
+    @if (Model.TenDanhMucChi.Any())
+    {
+        <text>
+        new Chart(document.getElementById('chiChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TenDanhMucChi)),
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SoTienDanhMucChi)),
+                    backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MauSacDanhMucChi))
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+        </text>
+    }
+    @if (Model.TenDanhMucThu.Any())
+    {
+        <text>
+        new Chart(document.getElementById('thuChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TenDanhMucThu)),
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SoTienDanhMucThu)),
+                    backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MauSacDanhMucThu))
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+        </text>
+    }
+</script>
+}
