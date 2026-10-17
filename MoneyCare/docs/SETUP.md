@@ -158,7 +158,7 @@ Mở trình duyệt vào địa chỉ hiện trong Terminal (mặc định `http
 
 ---
 
-## 5. MoneyCare_App (Flutter) — chạy song song hoặc sau cùng
+## 5. MoneyCare_App (Flutter) chạy song song hoặc sau cùng
 
 ### 5.1. Trỏ đúng địa chỉ API
 Mở `MoneyCare_App/lib/config/api_config.dart`:
@@ -171,7 +171,7 @@ static const String baseUrl = "http://10.0.2.2:5200";
 ```bash
 flutter run --dart-define=GOOGLE_WEB_CLIENT_ID=xxxx.apps.googleusercontent.com
 ```
-Trên Android cần thêm file `google-services.json` của riêng bạn (từ Firebase Console) vào `MoneyCare_App/android/app/` - xem `google-services.json.example`. Không có file này app vẫn build và chạy bình thường, chỉ thiếu Google Sign-In.
+Trên Android cần thêm file `google-services.json` của riêng bạn (từ Firebase Console) vào `MoneyCare_App/android/app/` xem `google-services.json.example`. Không có file này app vẫn build và chạy bình thường, chỉ thiếu Google Sign-In.
 
 - **Android Emulator**: giữ nguyên `10.0.2.2` (địa chỉ đặc biệt trỏ về máy tính thật của bạn).
 - **Điện thoại thật** (USB hoặc cùng Wifi với máy tính chạy API): đổi thành IP LAN máy tính, ví dụ
@@ -180,7 +180,7 @@ Trên Android cần thêm file `google-services.json` của riêng bạn (từ F
 - Nhớ đổi đúng **số cổng** khớp với cổng API đang chạy thật (bước 3.4).
 
 > Ghi chú: file `AndroidManifest.xml` đã có sẵn `usesCleartextTraffic="true"` để cho phép gọi API qua
-> `http://` (không mã hóa) khi test — khi triển khai thật, hãy chạy API qua HTTPS và bỏ cấu hình này.
+> `http://` (không mã hóa) khi test khi triển khai thật, hãy chạy API qua HTTPS và bỏ cấu hình này.
 
 ### 5.2. Cài package & chạy
 ```bash
