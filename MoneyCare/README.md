@@ -1,4 +1,4 @@
-# 💰 MoneyCare — Ứng dụng quản lý tài chính cá nhân
+# 💰 MoneyCare - Ứng dụng quản lý tài chính cá nhân
 
 Hệ thống quản lý thu chi cá nhân & hộ gia đình gồm **Web (ASP.NET Core MVC)**, **Mobile App (Flutter)** và một **REST API (ASP.NET Core Web API)** dùng chung. Có quét hóa đơn bằng OCR, chatbot/gợi ý chi tiêu bằng AI cục bộ, thanh toán Premium qua ZaloPay/VietQR và trang quản trị.
 
