@@ -1,6 +1,6 @@
 # HƯỚNG DẪN CÀI ĐẶT & CHẠY MONEYCARE (API + Web + App)
 
-Tài liệu này dành cho người **mới bắt đầu** - làm theo đúng thứ tự từ trên xuống là chạy được toàn bộ hệ thống.
+Tài liệu này dành cho người **mới bắt đầu** làm theo đúng thứ tự từ trên xuống là chạy được toàn bộ hệ thống.
 
 ---
 
@@ -24,7 +24,7 @@ Tài liệu này dành cho người **mới bắt đầu** - làm theo đúng th
 
 **Vì sao tách như vậy:**
 - `MoneyCare_API` là "bộ não" duy nhất mọi validate, tính toán, đọc/ghi SQL Server đều nằm ở đây.
-- `MoneyCare_Web` và `MoneyCare_App` là **Frontend** — chúng vẫn có logic riêng (validate form, điều
+- `MoneyCare_Web` và `MoneyCare_App` là **Frontend** chúng vẫn có logic riêng (validate form, điều
   hướng trang, quản lý trạng thái đăng nhập, gọi API...) nhưng **không** truy cập Database trực tiếp.
 - Bạn có thể sửa giao diện Web/App thoải mái mà không đụng vào nghiệp vụ, và ngược lại.
 
