@@ -112,7 +112,7 @@ Lúc khởi động lần đầu, hệ thống sẽ tự động:
 - Tạo Role "Admin"
 - Tạo sẵn 1 tài khoản quản trị demo: **email `admin@moneycare.local`, mật khẩu `Admin@123`**
   (đổi 2 giá trị này trong `appsettings.json` mục `AdminSeed` trước khi chạy nếu muốn dùng email/mật
-  khẩu khác — hoặc đổi mật khẩu sau khi đăng nhập).
+  khẩu khác hoặc đổi mật khẩu sau khi đăng nhập).
 
 ### 3.5. Các cấu hình tùy chọn (không bắt buộc để chạy demo, nhưng nên biết)
 
