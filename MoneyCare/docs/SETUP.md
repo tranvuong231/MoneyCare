@@ -1,6 +1,6 @@
 # HƯỚNG DẪN CÀI ĐẶT & CHẠY MONEYCARE (API + Web + App)
 
-Tài liệu này dành cho người **mới bắt đầu** — làm theo đúng thứ tự từ trên xuống là chạy được toàn bộ hệ thống.
+Tài liệu này dành cho người **mới bắt đầu** - làm theo đúng thứ tự từ trên xuống là chạy được toàn bộ hệ thống.
 
 ---
 
@@ -23,7 +23,7 @@ Tài liệu này dành cho người **mới bắt đầu** — làm theo đúng 
 ```
 
 **Vì sao tách như vậy:**
-- `MoneyCare_API` là "bộ não" duy nhất — mọi validate, tính toán, đọc/ghi SQL Server đều nằm ở đây.
+- `MoneyCare_API` là "bộ não" duy nhất mọi validate, tính toán, đọc/ghi SQL Server đều nằm ở đây.
 - `MoneyCare_Web` và `MoneyCare_App` là **Frontend** — chúng vẫn có logic riêng (validate form, điều
   hướng trang, quản lý trạng thái đăng nhập, gọi API...) nhưng **không** truy cập Database trực tiếp.
 - Bạn có thể sửa giao diện Web/App thoải mái mà không đụng vào nghiệp vụ, và ngược lại.
@@ -49,13 +49,13 @@ flutter doctor        # kiểm tra Flutter, sửa theo các dấu ✗ nếu có
 
 ---
 
-## 3. MoneyCare_API — làm trước tiên (2 project kia phụ thuộc vào nó)
+## 3. MoneyCare_API làm trước tiên (2 project kia phụ thuộc vào nó)
 
 ### 3.0. Cách quản lý cấu hình bí mật (đọc trước khi chạy)
 Repo này **không chứa** mật khẩu/khóa thật. Mỗi project có:
-- `appsettings.json` — cấu hình mặc định, giá trị bí mật để trống hoặc dạng `CHANGE_ME_...` (được commit).
-- `appsettings.Development.example.json` — file mẫu (được commit).
-- `appsettings.Development.json` — **file của riêng bạn**, tạo bằng cách copy từ file `.example` rồi điền giá trị thật. File này đã bị `.gitignore`, sẽ **không** bị đẩy lên GitHub.
+- `appsettings.json` cấu hình mặc định, giá trị bí mật để trống hoặc dạng `CHANGE_ME_...` (được commit).
+- `appsettings.Development.example.json` file mẫu (được commit).
+- `appsettings.Development.json` **file của riêng bạn**, tạo bằng cách copy từ file `.example` rồi điền giá trị thật. File này đã bị `.gitignore`, sẽ **không** bị đẩy lên GitHub.
 
 ```bash
 cp MoneyCare_API/MoneyCare.Api/appsettings.Development.example.json MoneyCare_API/MoneyCare.Api/appsettings.Development.json
@@ -82,7 +82,7 @@ Mở (hoặc ghi đè trong `appsettings.Development.json`) `MoneyCare_API/Money
 - Nếu bạn dùng **SQL Server Authentication** (user/password thay vì Windows):
   `Server=localhost;Database=MoneyCare;User Id=sa;Password=MatKhauCuaBan;TrustServerCertificate=True;`
 
-Bạn **không cần** tự tạo Database "MoneyCare" trước — bước tiếp theo sẽ tự tạo.
+Bạn **không cần** tự tạo Database "MoneyCare" trước bước tiếp theo sẽ tự tạo.
 
 ### 3.3. Chạy Migration để tạo bảng
 Migration đã có sẵn trong project (thư mục `Migrations/`), bạn chỉ cần áp dụng chúng:
@@ -96,7 +96,7 @@ dotnet ef database update
 > Nếu báo lỗi `dotnet ef: command not found`, cài công cụ EF Core CLI 1 lần:
 > `dotnet tool install --global dotnet-ef`
 
-**Cách khác (không cần dotnet ef):** chỉ cần chạy `dotnet run` — `Program.cs` đã được cấu hình
+**Cách khác (không cần dotnet ef):** chỉ cần chạy `dotnet run` - `Program.cs` đã được cấu hình
 **tự động migrate + tạo bảng khi khởi động** (`db.Database.Migrate()`), nên thật ra bước
 `dotnet ef database update` là tùy chọn, bạn có thể bỏ qua và chạy thẳng bước 3.4.
 
@@ -119,14 +119,14 @@ Lúc khởi động lần đầu, hệ thống sẽ tự động:
 | Mục trong `appsettings.json` | Dùng để làm gì | Nếu để trống thì sao |
 |---|---|---|
 | `EmailSettings` (SMTP) | Gửi email thật (mã OTP xác minh, đặt lại mật khẩu...) | Hệ thống tự chuyển sang **chế độ demo**: trả thẳng mã OTP về cho Web/App hiển thị luôn trên màn hình, không cần đọc email |
-| `Authentication:Google:ClientId` (+ `ClientSecret` bên `MoneyCare_Web`) | Đăng nhập bằng Google | Nút "Đăng nhập với Google" sẽ báo lỗi nếu bấm vào — ẩn bớt phần này nếu không dùng |
+| `Authentication:Google:ClientId` (+ `ClientSecret` bên `MoneyCare_Web`) | Đăng nhập bằng Google | Nút "Đăng nhập với Google" sẽ báo lỗi nếu bấm vào ẩn bớt phần này nếu không dùng |
 | `LmStudio` | Chatbot & gợi ý chi tiêu bằng AI cục bộ (chạy [LM Studio](https://lmstudio.ai/) trên máy bạn) | Chatbot tự chuyển sang trả lời theo kịch bản có sẵn (rule-based), Insights vẫn hoạt động bình thường chỉ là không có thêm gợi ý AI |
 | `ZaloPay` | Thanh toán QR ZaloPay (đã để sẵn key môi trường **sandbox công khai** của ZaloPay để test) | Vẫn chạy được ở chế độ sandbox, không cần đổi gì để demo |
 | `Jwt:Key` | Khóa ký JWT | **Bắt buộc đổi** thành chuỗi ngẫu nhiên riêng của bạn (đặt trong `appsettings.Development.json`) trước khi triển khai thật |
 
 ---
 
-## 4. MoneyCare_Web — chạy sau khi API đã chạy
+## 4. MoneyCare_Web - chạy sau khi API đã chạy
 
 ### 4.1. Trỏ đúng địa chỉ API
 Mở `MoneyCare_Web/MoneyCare.Web/appsettings.json`:
@@ -171,7 +171,7 @@ static const String baseUrl = "http://10.0.2.2:5200";
 ```bash
 flutter run --dart-define=GOOGLE_WEB_CLIENT_ID=xxxx.apps.googleusercontent.com
 ```
-Trên Android cần thêm file `google-services.json` của riêng bạn (từ Firebase Console) vào `MoneyCare_App/android/app/` — xem `google-services.json.example`. Không có file này app vẫn build và chạy bình thường, chỉ thiếu Google Sign-In.
+Trên Android cần thêm file `google-services.json` của riêng bạn (từ Firebase Console) vào `MoneyCare_App/android/app/` - xem `google-services.json.example`. Không có file này app vẫn build và chạy bình thường, chỉ thiếu Google Sign-In.
 
 - **Android Emulator**: giữ nguyên `10.0.2.2` (địa chỉ đặc biệt trỏ về máy tính thật của bạn).
 - **Điện thoại thật** (USB hoặc cùng Wifi với máy tính chạy API): đổi thành IP LAN máy tính, ví dụ
@@ -189,7 +189,7 @@ flutter pub get
 flutter run
 ```
 Chọn thiết bị/emulator khi được hỏi. Đăng ký tài khoản mới ngay trên app hoặc đăng nhập bằng tài
-khoản đã tạo từ Web — **vì cả 2 dùng chung 1 Database/API**, tài khoản và dữ liệu đồng bộ ngay lập tức
+khoản đã tạo từ Web - **vì cả 2 dùng chung 1 Database/API**, tài khoản và dữ liệu đồng bộ ngay lập tức
 giữa Web và App.
 
 ---
@@ -206,21 +206,21 @@ giữa Web và App.
 
 ## 7. Những thay đổi so với bản gốc (nên biết để không bỡ ngỡ)
 
-Trong lúc tách Backend, một vài chỗ được **đơn giản hóa/thống nhất lại** giữa Web và App cho gọn và dễ bảo trì hơn — hành vi cuối cùng người dùng thấy gần như không đổi:
+Trong lúc tách Backend, một vài chỗ được **đơn giản hóa/thống nhất lại** giữa Web và App cho gọn và dễ bảo trì hơn hành vi cuối cùng người dùng thấy gần như không đổi:
 
-- **Xác minh Email**: trước đây Web gửi **link** để bấm, giờ gửi **mã OTP 6 số** để nhập tay (giống hệt cách xác minh Số điện thoại đã có) — đồng bộ cách làm với App di động và không cần lo việc mở link phải đúng domain.
+- **Xác minh Email**: trước đây Web gửi **link** để bấm, giờ gửi **mã OTP 6 số** để nhập tay (giống hệt cách xác minh Số điện thoại đã có) đồng bộ cách làm với App di động và không cần lo việc mở link phải đúng domain.
 - **Quên mật khẩu**: tương tự, chuyển từ link sang mã OTP 6 số.
 - **Liên kết Ngân hàng/MoMo (demo)**: trước đây bấm "Kết nối" sẽ thử chuyển hướng OAuth trước rồi mới rơi về form nhập tay; giờ vào thẳng form nhập tay luôn (vì đây vốn là tính năng minh họa, chưa có hợp đồng đối tác thật).
 - **Đăng nhập Google trên Web**: vẫn giữ nguyên trải nghiệm bấm nút → chuyển sang Google → quay lại là đăng nhập xong, chỉ khác là ở "hậu trường" Web gửi token Google nhận được cho `MoneyCare_API` xác thực (dùng chung 1 endpoint với App di động) thay vì tự xử lý.
-- **Đổi tên đăng nhập lúc đăng ký**: bản mới dùng **Email làm định danh duy nhất** (giống ứng dụng di động) — trường "Tên đăng nhập" trên form Đăng nhập dùng để nhập Email.
+- **Đổi tên đăng nhập lúc đăng ký**: bản mới dùng **Email làm định danh duy nhất** (giống ứng dụng di động) trường "Tên đăng nhập" trên form Đăng nhập dùng để nhập Email.
 
-Không có tính năng nào bị cắt bỏ — toàn bộ nghiệp vụ gốc (OCR hóa đơn, Insight AI, Chatbot, ZaloPay, Premium, Hộ gia đình, Xuất Excel/PDF, trang Admin...) đều được giữ nguyên và chuyển đầy đủ sang `MoneyCare_API`.
+Không có tính năng nào bị cắt bỏ toàn bộ nghiệp vụ gốc (OCR hóa đơn, Insight AI, Chatbot, ZaloPay, Premium, Hộ gia đình, Xuất Excel/PDF, trang Admin...) đều được giữ nguyên và chuyển đầy đủ sang `MoneyCare_API`.
 
 ---
 
 ## 8. Dọn dẹp đã thực hiện
 
-- Gỡ toàn bộ code truy cập Database (`ApplicationDbContext`, `UserManager`, `SignInManager`) ra khỏi `MoneyCare_Web` — Web giờ chỉ còn 1 cửa ngõ duy nhất ra bên ngoài là `Services/MoneyCareApiClient.cs`.
+- Gỡ toàn bộ code truy cập Database (`ApplicationDbContext`, `UserManager`, `SignInManager`) ra khỏi `MoneyCare_Web` - Web giờ chỉ còn 1 cửa ngõ duy nhất ra bên ngoài là `Services/MoneyCareApiClient.cs`.
 - Gộp các Controller MVC (vốn vừa xử lý nghiệp vụ vừa render View) thành 2 lớp rõ ràng: API Controller (trả JSON, có validate + business rule) và Web Controller (chỉ gọi API + đổ dữ liệu ra View).
 - Xóa thư mục `wwwroot/uploads` cũ trong Web (ảnh đại diện/ảnh nền giờ được `MoneyCare_API` lưu trữ và phục vụ, Web không tự lưu file nữa).
 
