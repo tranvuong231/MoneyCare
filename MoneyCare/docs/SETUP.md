@@ -133,7 +133,7 @@ Mở `MoneyCare_Web/MoneyCare.Web/appsettings.json`:
 ```json
 "ApiBaseUrl": "http://localhost:5200"
 ```
-Dùng đúng cổng **HTTP** (không phải HTTPS) mà `MoneyCare_API` đang chạy ở bước 3.4 — mặc định là
+Dùng đúng cổng **HTTP** (không phải HTTPS) mà `MoneyCare_API` đang chạy ở bước 3.4 mặc định là
 `http://localhost:5200`. API cố tình không ép chuyển hướng sang HTTPS (để tránh lỗi bắt tay SSL khi
 Web gọi sang), nên cứ dùng `http://` cho việc chạy ở máy cá nhân là ổn nhất, đỡ phải lo chứng chỉ tự ký.
 
